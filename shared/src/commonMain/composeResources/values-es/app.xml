@@ -7,4 +7,5 @@
     <string name="close">Cerrar</string>
     <string name="clear_search">Borrar búsqueda</string>
     <string name="back">Atrás</string>
+    <string name="back_to_top">Volver arriba</string>
 </resources>
