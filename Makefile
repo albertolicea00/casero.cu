@@ -3,9 +3,11 @@
 #   make run                  Android app on every connected device/emulator (default)
 #   make run ios              iOS app on a simulator (same as PLATFORM=ios)
 #   make run DEVICE=<serial>  Android app on one device (serials: `adb devices`)
+#   make install              your physical iPhone and Android phones
+#   make install ios          only the iPhone (team from keys/ios.properties or TEAM=<id>)
 #   make test                 shared tests on Android (JVM) and the iOS simulator
 
-# `make run ios` / `make run android` pick the platform like PLATFORM= does.
+# `make run ios`, `make install android`… pick the platform like PLATFORM= does.
 PLATFORM ?= $(if $(filter ios,$(MAKECMDGOALS)),ios,android)
 APP_ID := com.casero.cu
 ACTIVITY := com.casero.cu.android.MainActivity
@@ -17,6 +19,7 @@ DEVICE ?=
 export ANDROID_SERIAL := $(DEVICE)
 EMULATOR := $(ANDROID_HOME)/emulator/emulator
 # First installed AVD unless one is given: make run AVD=Pixel_8
+FAIL := . scripts/lib.sh && fail
 AVD ?= $(shell $(EMULATOR) -list-avds 2>/dev/null | head -1)
 # Simulator name as listed by `xcrun simctl list devices available`
 SIMULATOR ?= iPhone 17 Pro Max
@@ -25,19 +28,22 @@ IOS_BUILD := build/ios
 IOS_APP := $(IOS_BUILD)/Build/Products/Debug-iphonesimulator/CaseroCu.app
 
 .DEFAULT_GOAL := help
-.PHONY: help run build test check clean ios android \
+.PHONY: help run install build test check clean ios android \
 	android-build android-install android-run android-release emulator android-device devices \
-	ios-project ios-build ios-run simulator
+	android-device-install ios-project ios-build ios-run ios-device-install simulator
 
 help: ## List the available tasks
-	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 run: ## Run the app: `make run`, `make run ios`, `make run DEVICE=<serial>`
 	@$(MAKE) --no-print-directory $(PLATFORM)-run
 
-# Platform words after `run`; alone they run that platform too.
+install: ## Install on your physical devices: `make install`, `make install ios|android`
+	@$(if $(filter ios android,$(MAKECMDGOALS)),$(MAKE) --no-print-directory $(filter ios android,$(MAKECMDGOALS))-device-install,$(MAKE) --no-print-directory android-device-install ios-device-install)
+
+# Platform words after `run` / `install`; alone they run that platform.
 ios android:
-	@$(if $(filter run,$(MAKECMDGOALS)),:,$(MAKE) --no-print-directory $@-run)
+	@$(if $(filter run install,$(MAKECMDGOALS)),:,$(MAKE) --no-print-directory $@-run)
 
 build: android-build ios-build ## Build both apps (debug)
 
@@ -61,8 +67,10 @@ android-release: ## Build the Android release bundle (needs your signing config)
 	$(GRADLE) :androidApp:bundleRelease
 
 emulator: ## Open the Android emulator window (AVD=name) unless one is already running
+	@test -x $(ADB) || { $(FAIL) "adb not found at $(ADB)." "Install the Android SDK (Android Studio → SDK Manager) or set ANDROID_HOME."; }
 	@if [ -z "$$($(ADB) devices | awk 'NR > 1 && $$1 ~ /^emulator-/')" ]; then \
-		test -n "$(AVD)" || { echo "No AVD found. Create one in Android Studio or pass AVD=name."; exit 1; }; \
+		test -n "$(AVD)" || { $(FAIL) "No Android emulator (AVD) exists." "Create one in Android Studio → Device Manager, or pass AVD=<name>."; }; \
+		$(EMULATOR) -list-avds | grep -qx "$(AVD)" || { $(FAIL) "No emulator named $(AVD)." "Available: $$($(EMULATOR) -list-avds | tr '\n' ' ')"; }; \
 		echo "Starting emulator $(AVD)…"; \
 		nohup $(EMULATOR) -avd "$(AVD)" >/dev/null 2>&1 & \
 		until [ -n "$$($(ADB) devices | awk 'NR > 1 && $$1 ~ /^emulator-/ && $$2 == "device"')" ]; do sleep 2; done; \
@@ -76,10 +84,14 @@ android-device:
 android-install: android-device ## Build and install the debug APK
 	$(GRADLE) :androidApp:installDebug
 
+android-device-install: ## Install on the Android phones connected by USB or Wi-Fi
+	@scripts/android-device.sh
+
 android-run: android-install ## Build, install and open the Android app on every device
 	@for serial in $${ANDROID_SERIAL:-$$($(ADB) devices | awk 'NR > 1 && $$2 == "device" { print $$1 }')}; do \
 		echo "Opening on $$serial"; \
-		$(ADB) -s $$serial shell am start -n $(APP_ID)/$(ACTIVITY) >/dev/null; \
+		$(ADB) -s $$serial shell am start -n $(APP_ID)/$(ACTIVITY) >/dev/null \
+			|| { $(FAIL) "Installed on $$serial, but the app did not open." "Unlock the device and open CASEROcu."; }; \
 	done
 
 devices: ## List connected Android devices and emulators
@@ -88,20 +100,30 @@ devices: ## List connected Android devices and emulators
 # --- iOS ---------------------------------------------------------------------
 
 ios-project: ## Generate the Xcode project from iosApp/project.yml
+	@command -v xcodegen >/dev/null || { $(FAIL) "XcodeGen is not installed." "brew install xcodegen"; }
 	cd iosApp && xcodegen generate
 
 $(IOS_PROJECT): iosApp/project.yml
-	cd iosApp && xcodegen generate
+	@$(MAKE) --no-print-directory ios-project
 
 ios-build: $(IOS_PROJECT) ## Build the iOS app for the simulator
-	xcodebuild -project $(IOS_PROJECT) -scheme CaseroCu -configuration Debug \
+	@mkdir -p $(IOS_BUILD)
+	@echo "Building the iOS app (log: $(IOS_BUILD)/xcodebuild.log)…"
+	@xcodebuild -project $(IOS_PROJECT) -scheme CaseroCu -configuration Debug \
 		-destination 'generic/platform=iOS Simulator' -derivedDataPath $(IOS_BUILD) \
-		CODE_SIGNING_ALLOWED=NO build
+		CODE_SIGNING_ALLOWED=NO build > $(IOS_BUILD)/xcodebuild.log 2>&1 \
+		|| { grep -E "error:|e: |What went wrong" $(IOS_BUILD)/xcodebuild.log | sort -u | head -20; \
+			$(FAIL) "The iOS build failed." "The errors are above. Full log: $(IOS_BUILD)/xcodebuild.log"; }
+
+ios-device-install: ## Install on the iPhone connected to this Mac
+	@scripts/ios-device.sh
 
 simulator: ## Boot the iOS simulator (SIMULATOR="iPhone 17 Pro Max")
+	@xcrun simctl list devices available | grep -q "    $(SIMULATOR) (" || { $(FAIL) "No simulator named \"$(SIMULATOR)\"." "Pick one of: $$(xcrun simctl list devices available | sed -n 's/^    \(iPhone[^(]*\) (.*/\1/p' | sed 's/ *$$//' | sort -u | paste -sd ',' -). Example: make run ios SIMULATOR=\"iPhone 17\""; }
 	@xcrun simctl boot "$(SIMULATOR)" 2>/dev/null || true
 	@open -a Simulator
 
 ios-run: ios-build simulator ## Build, install and open the iOS app in the simulator
-	xcrun simctl install "$(SIMULATOR)" $(IOS_APP)
-	xcrun simctl launch "$(SIMULATOR)" $(APP_ID)
+	@xcrun simctl install "$(SIMULATOR)" $(IOS_APP) || { $(FAIL) "Could not install on the simulator." "Wait until it finishes booting and run again."; }
+	@xcrun simctl launch "$(SIMULATOR)" $(APP_ID) >/dev/null || { $(FAIL) "Installed, but the app did not open in the simulator." "Open CASEROcu from the simulator's home screen."; }
+	@echo "✓ CASEROcu opened in $(SIMULATOR)"
