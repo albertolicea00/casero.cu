@@ -188,6 +188,7 @@ private fun MainScreen(app: AppState) {
                             app = app,
                             guest = route.guest,
                             onBack = { stack.removeAt(stack.lastIndex) },
+                            nationalityNamesByCode = guestsTab.nationalityNamesByCode,
                             onCompanionsLoaded = { count -> guestsTab.companionCounts[route.guest.id] = count },
                         )
                         is Route.SettingsPage -> when (route.destination) {

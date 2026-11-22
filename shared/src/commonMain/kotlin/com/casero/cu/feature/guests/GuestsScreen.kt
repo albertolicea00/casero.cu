@@ -140,6 +140,10 @@ class GuestsTab(app: AppState) {
     internal var seenDefaultDays = app.settings.defaultGuestRangeDays.value
     internal var seenVersion = app.registrationsVersion
     internal var wasSignedIn = app.isSignedIn
+
+    /** Nationality names learned from the list, for guests whose name came back empty. */
+    var nationalityNamesByCode: Map<String, String> = emptyMap()
+        internal set
 }
 
 /** A list section: check-in month (History) or departure day (Active). */
@@ -237,7 +241,7 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
 
     val guests = model.filteredGuests
     val groups = if (model.segment == GuestsViewModel.Segment.Active) groupedByDeparture(guests) else groupedByCheckInMonth(guests)
-    val knownNationalities = nationalityNamesByCode(model.guests)
+    val knownNationalities = nationalityNamesByCode(model.guests).also { tab.nationalityNamesByCode = it }
 
     Scaffold(
         topBar = {
