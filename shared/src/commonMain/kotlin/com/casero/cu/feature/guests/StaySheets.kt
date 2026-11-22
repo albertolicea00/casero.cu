@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.casero.cu.app.AppState
 import com.casero.cu.feature.register.RegisterGuestViewModel
 import com.casero.cu.model.CompanionRegistration
+import com.casero.cu.model.CubanId
 import com.casero.cu.model.Guest
 import com.casero.cu.model.PersonaValidation
 import com.casero.cu.model.PortalDates
@@ -57,6 +58,7 @@ import com.casero.cu.resources.check_in_can_be_at_most_7_days_ago
 import com.casero.cu.resources.check_out
 import com.casero.cu.resources.check_out_must_be_on_or_after_check_in
 import com.casero.cu.resources.check_out_updated
+import com.casero.cu.resources.ci_has_11_digits
 import com.casero.cu.resources.choose_a_new_check_out_within_the_stay_from_the
 import com.casero.cu.resources.companion_of_x_stay_id_x
 import com.casero.cu.resources.current_check_out
@@ -90,6 +92,7 @@ import com.casero.cu.ui.Green
 import com.casero.cu.ui.GuestStayText
 import com.casero.cu.ui.Hint
 import com.casero.cu.ui.InputCard
+import com.casero.cu.ui.Orange
 import com.casero.cu.ui.PersonDetails
 import com.casero.cu.ui.PrimaryButton
 import com.casero.cu.ui.Red
@@ -426,13 +429,16 @@ fun AddCompanionSheet(app: AppState, guest: Guest, existingIDs: Set<String>, onD
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     InputCard {
-                        CardTextField(carne, { carne = it }, stringResource(Res.string.carne_de_identidad), keyboardType = KeyboardType.Number)
+                        CardTextField(carne, { carne = CubanId.sanitize(it) }, stringResource(Res.string.carne_de_identidad), keyboardType = KeyboardType.Number)
+                    }
+                    if (trimmedCarne.isNotEmpty() && !CubanId.isValid(trimmedCarne)) {
+                        Hint(stringResource(Res.string.ci_has_11_digits), icon = Icons.Default.Warning, color = Orange)
                     }
                     Hint(stringResource(Res.string.this_search_option_is_only_valid_for_cuban))
                     PrimaryButton(
                         stringResource(Res.string.look_up),
                         ::lookUp,
-                        enabled = trimmedCarne.isNotEmpty() && !isSubmitting,
+                        enabled = CubanId.isValid(trimmedCarne) && !isSubmitting,
                         loading = isLookingUp,
                     )
                     lookupError?.let { Hint(it.resolve(), icon = Icons.Default.Warning, color = Red) }
