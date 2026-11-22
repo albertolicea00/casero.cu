@@ -53,11 +53,13 @@ Related docs: [ARCHITECTURE.md](ARCHITECTURE.md), [README.md](README.md) /
 ## Conventions
 
 - **All code, comments, identifiers and docs are written in English.** The UI is
-  localized in English and Spanish. Add every new user-facing string to both.
+  localized in English and Spanish (`shared/src/commonMain/composeResources/values{,-es}/`).
+  Add every new user-facing string to both. Strings converted from the iOS tables
+  keep their generated names; new ones go in `app.xml`.
 - **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/)
   (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `build:`, `ci:`).
 - Do **not** add AI/tool attribution or co-author trailers to commits.
-- Kotlin Multiplatform + Compose Multiplatform. Targets: Android and iOS 16+.
+- Kotlin Multiplatform + Compose Multiplatform. Targets: Android 8+ (API 26) and iOS 16+.
 - Put logic in `commonMain`. Platform code (`androidMain`, `iosMain`) only for
   what has no common API: TLS pinning, secure credential storage, biometrics,
   SMS composer, USSD (Android only). Expose it through `expect`/`actual` or an
@@ -68,7 +70,22 @@ Related docs: [ARCHITECTURE.md](ARCHITECTURE.md), [README.md](README.md) /
 
 ## Commands
 
-The Gradle project is not scaffolded yet. Commands go here once it is.
+```bash
+make                      # list every task
+make run                  # Android app on a device or emulator (starts the first AVD)
+make run PLATFORM=ios     # iOS app on a simulator (SIMULATOR="iPhone 17 Pro Max")
+make test                 # shared tests on the JVM and the iOS simulator
+make check                # tests, Android lint and `git diff --check` (release gate)
+make build                # both debug builds
+```
+
+Underneath: `./gradlew :shared:testDebugUnitTest :shared:iosSimulatorArm64Test`,
+`./gradlew :androidApp:assembleDebug`, and for iOS `xcodegen generate` in `iosApp/`
+followed by `xcodebuild`. The Xcode project is generated from `iosApp/project.yml`
+and git-ignored; its build phase runs `:shared:embedAndSignAppleFrameworkForXcode`.
+
+Tests never contact the real portal: they use Ktor's `MockEngine`, fabricated
+fixtures and an in-memory file system.
 
 ---
 
@@ -383,7 +400,7 @@ Newest first. Each entry: what was learned and how.
 
 - **2026-11-22** — First registration sent **from the app** to the live portal:
   accepted, and "Last result" showed the stay IDs (host, on device). Closes the
-  end-to-end check of issue #2.
+  end-to-end check of casero.cu-ios issue #2.
 - **2026-11-21** — `RegistrarHuesped` refusal returns
   `{ success: false, message: "No se ha registrado ningún huésped." }` with no
   reason (web capture). The app shows it verbatim.
@@ -407,8 +424,8 @@ Newest first. Each entry: what was learned and how.
 
 ## Open questions and known issues
 
-Open questions (capture from the web when they happen; moved here from issue #2,
-now closed):
+Open questions (capture from the web when they happen; moved here from
+casero.cu-ios issue #2, now closed):
 
 - Registration of a person **without a second surname** (expected `NOMBRE**APELLIDO1*`).
 - `tipo=3` lookup when the person **is** found.
@@ -421,9 +438,9 @@ now closed):
   whether companion dates must fall inside the guest's stay.
 - Meaning of `Estado` in lookups.
 - `ListarViasComunicacion`: the `Tipo` value for e-mails, and the add/remove
-  channels request ([#4](https://github.com/albertolicea00/casero.cu-ios/issues/4)).
+  channels request ([#2](https://github.com/albertolicea00/casero.cu/issues/2)).
 - `Gestionar/CambiarCredencialesAjax`: request body and answer (only the URL and
-  form field ids are known) ([#3](https://github.com/albertolicea00/casero.cu-ios/issues/3)).
+  form field ids are known) ([#1](https://github.com/albertolicea00/casero.cu/issues/1)).
 
 Known issues:
 
