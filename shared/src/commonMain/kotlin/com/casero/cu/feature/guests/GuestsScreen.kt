@@ -1,5 +1,13 @@
 package com.casero.cu.feature.guests
 
+import com.casero.cu.resources.back_to_top
+import androidx.compose.material3.Surface
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -192,6 +200,9 @@ private fun groupedByDeparture(guests: List<Guest>): List<GuestGroup> {
     return groups
 }
 
+/** The back-to-top button appears once the first visible row is past this one. */
+private const val BACK_TO_TOP_AFTER_ITEMS = 5
+
 /** Short lists fit on screen or scroll easily: the scrubber appears only past this many guests. */
 private const val SCRUBBER_MINIMUM_GUESTS = 8
 
@@ -356,6 +367,17 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
                     onSelect = { index -> scope.launch { listState.scrollToItem(itemIndex[guests[index].id] ?: 0) } },
                     modifier = Modifier.align(Alignment.CenterEnd),
                 )
+            }
+
+            // Shown once the list is well past the first screen.
+            val farDown by remember { derivedStateOf { listState.firstVisibleItemIndex > BACK_TO_TOP_AFTER_ITEMS } }
+            AnimatedVisibility(
+                visible = farDown,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
+                enter = fadeIn() + slideInVertically { it },
+                exit = fadeOut() + slideOutVertically { it },
+            ) {
+                BackToTopButton { scope.launch { listState.animateScrollToItem(0) } }
             }
         }
     }
@@ -630,6 +652,24 @@ private fun GuestScrubber(
                 maxLines = 1,
                 softWrap = false,
             )
+        }
+    }
+}
+
+/** Floating pill that scrolls the guest list back to the top. */
+@Composable
+private fun BackToTopButton(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        shadowElevation = 6.dp,
+    ) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.KeyboardArrowUp, contentDescription = null, Modifier.size(20.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(Res.string.back_to_top), style = MaterialTheme.typography.labelLarge)
         }
     }
 }
