@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings added by the multiplatform app; the rest come from the iOS tables. -->
+<resources>
+    <string name="password">Contraseña</string>
+    <string name="show_password">Mostrar contraseña</string>
+    <string name="hide_password">Ocultar contraseña</string>
+    <string name="close">Cerrar</string>
+    <string name="clear_search">Borrar búsqueda</string>
+    <string name="back">Atrás</string>
+</resources>
