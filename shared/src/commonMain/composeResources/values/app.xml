@@ -15,4 +15,5 @@
     <string name="continue_text">Continue</string>
     <string name="not_now">Not now</string>
     <string name="device_check_failed">Could not confirm it is you, so automatic sign-in stays off. This phone needs a screen lock.</string>
+    <string name="ci_has_11_digits">The identity card (CI) has 11 digits.</string>
 </resources>
