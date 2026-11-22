@@ -132,4 +132,19 @@ class RegistrationTest {
         assertEquals(1, client.submissions)
         assertTrue(model.isUncertain(model.queue.first()))
     }
+
+    /** The banner must not wait for the Register tab to be on screen again. */
+    @Test
+    fun expiredSessionIsReportedAtOnce() = runTest {
+        val client = StubPortalClient().apply { person = fixturePerson() }
+        var reported = 0
+        val model = RegisterGuestViewModel(client, { cubaAfternoon }) { reported += 1 }
+        model.identificador = "TEST-A"
+        model.lookUp()
+        model.addToQueue()
+        client.submitError = PortalError.SessionExpired
+        model.submit()
+        assertEquals(1, reported)
+        assertEquals(1, model.queue.size)
+    }
 }
