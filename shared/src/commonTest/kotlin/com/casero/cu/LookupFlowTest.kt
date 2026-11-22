@@ -55,15 +55,15 @@ class LookupFlowTest {
     fun eachKindCallsItsRegistry() = runTest {
         val client = Client().apply { answer = listOf(fixturePerson()) }
         val model = model(client)
-        for ((kind, expected) in listOf(
-            LookupKind.ForeignGuest to PersonaLookup.ByPassport,
-            LookupKind.TemporaryCarne to PersonaLookup.ByTemporaryCarne,
-            LookupKind.CubanCompanion to null,
+        for ((kind, id, expected) in listOf(
+            Triple(LookupKind.ForeignGuest, "ID1", PersonaLookup.ByPassport),
+            Triple(LookupKind.TemporaryCarne, "ID1", PersonaLookup.ByTemporaryCarne),
+            Triple(LookupKind.CubanCompanion, "00000000001", null),
         )) {
             model.lookupKind = kind
-            model.identificador = " ID1 "
+            model.identificador = " $id "
             model.lookUp()
-            assertEquals("ID1" to expected, client.calls.last())
+            assertEquals(id to expected, client.calls.last())
         }
     }
 
@@ -127,5 +127,29 @@ class LookupFlowTest {
         second.identificador = "X"
         second.lookUp()
         assertEquals(UiText.Raw("Persona con entrada activa."), second.validationMessage)
+    }
+
+    @Test
+    fun cubanIdNeedsElevenDigitsBeforeLookingUp() = runTest {
+        val client = Client().apply { answer = listOf(fixturePerson()) }
+        val model = model(client)
+        model.lookupKind = LookupKind.CubanCompanion
+        model.identificador = "0000000000"
+        assertFalse(model.canLookUp)
+        assertNotNull(model.identityHint)
+        model.lookUp()
+        assertTrue(client.calls.isEmpty(), "A short CI never reaches the portal")
+        model.identificador = "00000000001"
+        assertTrue(model.canLookUp)
+        assertNull(model.identityHint)
+    }
+
+    @Test
+    fun otherDocumentsAreNotHeldToTheCiFormat() {
+        val model = model(Client())
+        model.lookupKind = LookupKind.ForeignGuest
+        model.identificador = "AB12"
+        assertTrue(model.canLookUp)
+        assertNull(model.identityHint)
     }
 }

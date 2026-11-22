@@ -15,8 +15,10 @@ import com.casero.cu.reporting.SmsReporter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class ModelTest {
@@ -146,5 +148,14 @@ class ModelTest {
     fun antiForgeryInputAttributeOrderAndQuotes() {
         assertEquals("a&b", AntiForgery.extract("<input value='a&amp;b' type='hidden' name='__RequestVerificationToken'>"))
         assertFailsWith<PortalError.AntiForgeryMissing> { AntiForgery.extract("<input name='other' value='x'>") }
+    }
+
+    @Test
+    fun cubanIdIsElevenDigits() {
+        assertTrue(com.casero.cu.model.CubanId.isValid("00000000001"))
+        for (bad in listOf("", "0000000000", "000000000012", "0000000000A", "000 0000000")) {
+            assertFalse(com.casero.cu.model.CubanId.isValid(bad), bad)
+        }
+        assertEquals("00000000001", com.casero.cu.model.CubanId.sanitize(" 000-000-000-01 99"))
     }
 }
