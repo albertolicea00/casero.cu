@@ -311,3 +311,27 @@ fun LinkRow(text: String, icon: ImageVector, onClick: () -> Unit, trailing: Imag
 fun BackButton(onBack: () -> Unit) {
     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
 }
+
+/** Share of the screen height a sheet may take; the rest keeps the screen behind visible. */
+private const val SHEET_MAX_HEIGHT = 0.8f
+
+/**
+ * Bottom sheet used by every modal in the app. It opens fully but never covers
+ * more than [SHEET_MAX_HEIGHT] of the screen; longer content scrolls inside.
+ */
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
+@Composable
+fun CaseroSheet(
+    onDismissRequest: () -> Unit,
+    sheetState: androidx.compose.material3.SheetState =
+        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val screenHeight = with(androidx.compose.ui.platform.LocalDensity.current) {
+        androidx.compose.ui.platform.LocalWindowInfo.current.containerSize.height.toDp()
+    }
+    androidx.compose.material3.ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
+        // Limit the content, not the sheet: a shorter sheet still sits on the bottom edge.
+        Column(Modifier.heightIn(max = screenHeight * SHEET_MAX_HEIGHT), content = content)
+    }
+}
