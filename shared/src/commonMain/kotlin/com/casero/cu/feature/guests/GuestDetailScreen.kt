@@ -183,15 +183,16 @@ fun GuestDetailScreen(
         if (photo == null) launch { loadPhoto() }
         if (!isCompanion && guest.stayId.isNotEmpty()) {
             val snapshot = app.guestCache.loadCompanions(guest.stayId)
+                ?.takeUnless { app.guestCache.isStale(it.fetchedAt, cacheTTL.interval) }
             if (snapshot != null) {
-                if (app.guestCache.isStale(snapshot.fetchedAt, cacheTTL.interval)) {
-                    app.guestCache.removeCompanions(guest.stayId)
-                } else {
-                    companions = snapshot.companions
-                    didLoadCompanions = true
-                    onCompanionsLoaded(companions.size)
-                    loadCompanionPhotos(onlyIfMissing = true)
-                }
+                companions = snapshot.companions
+                didLoadCompanions = true
+                onCompanionsLoaded(companions.size)
+                loadCompanionPhotos(onlyIfMissing = true)
+            } else {
+                app.guestCache.removeCompanions(guest.stayId)
+                // Like the photo: without fresh cached companions, ask the portal right away.
+                if (app.isSignedIn) app.tasks.launch { loadCompanions() }
             }
         }
     }
