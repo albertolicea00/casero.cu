@@ -33,10 +33,13 @@ interface SecureStore {
     }
 }
 
+/** Texts of the system prompt: what it is for and what skipping it means. */
+data class DeviceCheckPrompt(val title: String, val reason: String, val skip: String)
+
 /** Biometrics or the device passcode. */
 interface DeviceOwnerCheck {
-    /** `false` when the device has no lock screen or the user cancels. */
-    suspend fun confirm(reason: String): Boolean
+    /** `false` when the device has no lock screen or the user skips it. */
+    suspend fun confirm(prompt: DeviceCheckPrompt): Boolean
 }
 
 /** Whether the device currently has internet connectivity, for the connectivity banner. */

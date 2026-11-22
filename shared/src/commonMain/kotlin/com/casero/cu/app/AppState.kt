@@ -12,10 +12,13 @@ import com.casero.cu.network.portalEngine
 import com.casero.cu.persistence.AppSettings
 import com.casero.cu.persistence.GuestCache
 import com.casero.cu.persistence.PhotoCache
+import com.casero.cu.platform.DeviceCheckPrompt
 import com.casero.cu.platform.Platform
 import com.casero.cu.platform.SecureStore
 import com.casero.cu.resources.Res
-import com.casero.cu.resources.sign_in_to_the_app_session_with_your_saved
+import com.casero.cu.resources.device_check_title
+import com.casero.cu.resources.device_prompt_reason
+import com.casero.cu.resources.skip
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -105,7 +108,13 @@ class AppState(val platform: Platform) {
      */
     private suspend fun confirmDeviceOwner(): Boolean =
         explainDeviceCheckOnce() &&
-            platform.deviceOwner.confirm(getString(Res.string.sign_in_to_the_app_session_with_your_saved))
+            platform.deviceOwner.confirm(
+                DeviceCheckPrompt(
+                    title = getString(Res.string.device_check_title),
+                    reason = getString(Res.string.device_prompt_reason),
+                    skip = getString(Res.string.skip),
+                ),
+            )
 
     /**
      * Pending answer of the one-time explanation shown before the first device check;

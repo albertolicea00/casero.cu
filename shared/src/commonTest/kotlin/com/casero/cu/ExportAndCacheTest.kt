@@ -107,7 +107,7 @@ private fun testPlatform(fileSystem: FakeFileSystem, pdf: PdfRenderer) = Platfor
     preferences = MemoryPreferences(),
     secureStore = MemorySecureStore(),
     deviceOwner = object : DeviceOwnerCheck {
-        override suspend fun confirm(reason: String) = false
+        override suspend fun confirm(prompt: com.casero.cu.platform.DeviceCheckPrompt) = false
     },
     connectivity = object : ConnectivityMonitor {
         override val isConnected = MutableStateFlow(true)
