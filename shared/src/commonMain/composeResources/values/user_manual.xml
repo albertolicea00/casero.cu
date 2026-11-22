@@ -2,7 +2,7 @@
 <!-- Generated from the iOS UserManual.strings table. -->
 <resources>
     <string name="manual_active">Active</string>
-    <string name="manual_add_companion_active_guests_only_look_up_the">Add companion (active guests only): look up the companion\'s ID card, set the dates and confirm.</string>
+    <string name="manual_add_companion_active_guests_only_look_up_the">Add companion (active guests only): look up the companion's ID card, set the dates and confirm.</string>
     <string name="manual_add_the_main_guest_a_foreigner_or_a_cuban_living">Add the main guest (a foreigner or a Cuban living abroad) first. People found by ID card are registered as companions.</string>
     <string name="manual_auto_re_authenticate_on_expiry">Auto re-authenticate on expiry</string>
     <string name="manual_banners_at_the_top">Banners at the top</string>
@@ -11,7 +11,7 @@
     <string name="manual_change_the_date_range_with_the_calendar_button">Change the date range with the calendar button; the default range is set in Settings.</string>
     <string name="manual_check_that_you_sent_it_from_the_associated">Check that you sent it from the associated number and with the exact format.</string>
     <string name="manual_choose_how_to_look_up_passport_id_card_name_or">Choose how to look up: Passport, ID card, Name or Temp. ID. Fill in the fields and tap “Look up”.</string>
-    <string name="manual_choose_companion_enter_the_main_guest_s_passport">Choose “Companion”, enter the main guest\'s passport, the companion\'s 11-digit identity number and the stay days.</string>
+    <string name="manual_choose_companion_enter_the_main_guest_s_passport">Choose “Companion”, enter the main guest's passport, the companion's 11-digit identity number and the stay days.</string>
     <string name="manual_choose_guest">Choose “Guest”.</string>
     <string name="manual_communication_channels">Communication channels</string>
     <string name="manual_confirm_the_received_code">Confirm the received code</string>
@@ -31,10 +31,10 @@
     <string name="manual_if_the_connection_drops_after_sending_the_people">If the connection drops after sending, the people are marked “Sent without confirmation”. Check Guests or the portal before sending again, to avoid duplicates.</string>
     <string name="manual_if_the_portal_refuses_it_gives_no_reason_try_sms">If the portal refuses, it gives no reason. Try SMS or your immigration office.</string>
     <string name="manual_it_only_works_from_inside_cuba_use_sms_reports">It only works from inside Cuba. Use SMS reports instead.</string>
-    <string name="manual_keep_remember_credentials_on_to_save_them_in">Keep “Remember credentials” on to save them in this device\'s secure storage. Each time they are used, the device asks for your fingerprint, face or screen lock.</string>
+    <string name="manual_keep_remember_credentials_on_to_save_them_in">Keep “Remember credentials” on to save them in this device's secure storage. Each time they are used, the device asks for your fingerprint, face or screen lock.</string>
     <string name="manual_no_sms_reply">No SMS reply</string>
     <string name="manual_notes">Notes</string>
-    <string name="manual_official_portal_help_the_portal_s_own">Official Portal Help: the portal\'s own instructions, with a link to each page.</string>
+    <string name="manual_official_portal_help_the_portal_s_own">Official Portal Help: the portal's own instructions, with a link to each page.</string>
     <string name="manual_orange_the_session_expired_sign_in_again">Orange: the session expired; sign in again.</string>
     <string name="manual_pick_the_right_person_set_the_check_in_up_to_7">Pick the right person, set the check-in (up to 7 days back) and check-out dates, and tap “Add to registration”.</string>
     <string name="manual_portal_features">Portal features</string>
@@ -51,7 +51,7 @@
     <string name="manual_report_a_cuban_companion">Report a Cuban companion</string>
     <string name="manual_report_a_foreign_guest">Report a foreign guest</string>
     <string name="manual_report_a_guest_by_sms_to_7344_each_person_is_a">Report a guest by SMS to 7344. Each person is a separate exchange, and only the final registration code confirms the report.</string>
-    <string name="manual_saves_your_password_in_this_device_s_keychain">Saves your password in this device\'s secure storage. Sign out deletes it.</string>
+    <string name="manual_saves_your_password_in_this_device_s_keychain">Saves your password in this device's secure storage. Sign out deletes it.</string>
     <string name="manual_search_by_name_or_passport">Search by name or passport.</string>
     <string name="manual_see_the_stay_the_photo_and_the_companions">See the stay, the photo and the companions.</string>
     <string name="manual_settings">Settings</string>
@@ -66,14 +66,14 @@
     <string name="manual_the_app_never_sends_anything_by_itself_and_does">The app never sends anything by itself and does not read your messages.</string>
     <string name="manual_the_default_date_range_and_export_guest_data">The default date range and Export guest data: pick dates and CSV / Excel or PDF (optionally with photos), then share the file.</string>
     <string name="manual_the_portal_does_not_load">The portal does not load</string>
-    <string name="manual_the_reply_brings_the_person_s_name_nationality">The reply brings the person\'s name, nationality and a confirmation code. Check them.</string>
-    <string name="manual_the_result_shows_each_person_s_stay_id_which_you">The result shows each person\'s stay ID, which you can copy. Only the stay ID proves the registration.</string>
+    <string name="manual_the_reply_brings_the_person_s_name_nationality">The reply brings the person's name, nationality and a confirmation code. Check them.</string>
+    <string name="manual_the_result_shows_each_person_s_stay_id_which_you">The result shows each person's stay ID, which you can copy. Only the stay ID proves the registration.</string>
     <string name="manual_the_session_keeps_expiring">The session keeps expiring</string>
     <string name="manual_the_i_button_explains_the_procedure_and_opens">The ⓘ button explains the procedure and opens the Cubatramite guide.</string>
     <string name="manual_the_i_button_on_sms_register_and_guests_explains">The ⓘ button on SMS, Register and Guests explains each section and links to the portal.</string>
     <string name="manual_this_device_cannot_send_sms">This device cannot send SMS</string>
     <string name="manual_troubleshooting">Troubleshooting</string>
-    <string name="manual_turn_on_the_main_guest_s_registration_is">Turn on “The main guest\'s registration is confirmed” and tap “Preview SMS”.</string>
+    <string name="manual_turn_on_the_main_guest_s_registration_is">Turn on “The main guest's registration is confirmed” and tap “Preview SMS”.</string>
     <string name="manual_under_confirm_received_code_enter_the_code">Under “Confirm received code”, enter the code without HC and send the prepared message.</string>
     <string name="manual_update_check_out_active_guests_and_companions">Update check-out (active guests and companions): pick the new date; the app shows how many days are added or removed before you confirm.</string>
     <string name="manual_use_the_preview_on_your_registered_phone_or_type">Use the preview on your registered phone, or type the same message there.</string>

@@ -152,7 +152,7 @@
     <string name="update_check_out">Update check-out</string>
     <string name="update_check_out_2">Update check-out?</string>
     <string name="use_the_phone_number_associated_with_your_host">Use the phone number associated with your host account. Request phone association and wait for confirmation before reporting.</string>
-    <string name="each_guest_and_companion_needs_a_separate_report">Each guest and companion needs a separate report. Check the reply\'s name and nationality, then send the confirmation code when prompted.</string>
+    <string name="each_guest_and_companion_needs_a_separate_report">Each guest and companion needs a separate report. Check the reply's name and nationality, then send the confirmation code when prompted.</string>
     <string name="built_from_the_guests_already_cached_on_this">Built from the guests already cached on this device — reload the Guests tab first to include recent data.</string>
     <string name="casero_web_portal">CASERO web portal</string>
     <string name="csv_excel">CSV / Excel</string>
@@ -163,9 +163,9 @@
     <string name="associate_your_host_phone">Associate your host phone</string>
     <string name="call_18808_from_the_phone_associated_with_your">Call 18808 from the phone associated with your host account and wait for confirmation. If you already have an account, manage the phone in Settings or on the official portal.</string>
     <string name="prepare_the_first_message">Prepare the first message</string>
-    <string name="for_a_guest_enter_the_passport_and_stay_days_for">For a guest, enter the passport and stay days. For a companion, enter the main guest\'s passport and the companion\'s identity number; the main guest must already be registered. The app prepares the HC message for 7344. Review it in Messages and send it.</string>
+    <string name="for_a_guest_enter_the_passport_and_stay_days_for">For a guest, enter the passport and stay days. For a companion, enter the main guest's passport and the companion's identity number; the main guest must already be registered. The app prepares the HC message for 7344. Review it in Messages and send it.</string>
     <string name="check_the_reply_and_confirm">Check the reply and confirm</string>
-    <string name="wait_for_the_service_reply_verify_the_guest_s">Wait for the service reply. Verify the guest\'s name and nationality, then select Confirm, enter the received confirmation code without HC, and send the prepared confirmation message to 7344.</string>
+    <string name="wait_for_the_service_reply_verify_the_guest_s">Wait for the service reply. Verify the guest's name and nationality, then select Confirm, enter the received confirmation code without HC, and send the prepared confirmation message to 7344.</string>
     <string name="wait_for_the_registration_code">Wait for the registration code</string>
     <string name="the_report_is_complete_only_after_the_service">The report is complete only after the service returns a final registration code. Each person needs a separate exchange. Confirmation requests expire after six hours; start a new report if one expires.</string>
     <string name="carne_de_identidad">Carné de identidad</string>
@@ -184,7 +184,7 @@
     <string name="companions">Companions</string>
     <string name="complete_in_official_portal">Complete in official portal</string>
     <string name="confirm_received_code">Confirm received code</string>
-    <string name="confirm_the_main_guest_s_registration_before">Confirm the main guest\'s registration before reporting a companion.</string>
+    <string name="confirm_the_main_guest_s_registration_before">Confirm the main guest's registration before reporting a companion.</string>
     <string name="confirmation_sms_sent_the_report_is_complete">Confirmation SMS sent. The report is complete only when the service returns a registration code.</string>
     <string name="confirmation_code_without_hc">Confirmation code without HC</string>
     <string name="could_not_build_export_x">Could not build export: %1$s</string>
@@ -216,7 +216,7 @@
     <string name="enter_a_passport_id_using_only_letters_and">Enter a passport/ID using only letters and digits.</string>
     <string name="enter_a_positive_whole_number_of_stay_days">Enter a positive whole number of stay days.</string>
     <string name="enter_only_the_received_confirmation_code">Enter only the received confirmation code, without HC or spaces.</string>
-    <string name="enter_the_companion_s_11_digit_identity_number">Enter the companion\'s 11-digit identity number.</string>
+    <string name="enter_the_companion_s_11_digit_identity_number">Enter the companion's 11-digit identity number.</string>
     <string name="export">Export</string>
     <string name="export_guest_data">Export guest data</string>
     <string name="foreign_guest">Foreign guest</string>
@@ -327,7 +327,7 @@
     <string name="stay_days">Stay days</string>
     <string name="the_sms_result_is_unknown_check_messages_before">The SMS result is unknown. Check Messages before retrying.</string>
     <string name="the_end_date_must_be_on_or_after_the_start_date">The end date must be on or after the start date.</string>
-    <string name="the_main_guest_s_registration_is_confirmed">The main guest\'s registration is confirmed</string>
+    <string name="the_main_guest_s_registration_is_confirmed">The main guest's registration is confirmed</string>
     <string name="the_portal_returned_an_unexpected_response">The portal returned an unexpected response. Please try again or use the official portal.</string>
     <string name="the_portal_returned_incomplete_personal_data_use">The portal returned incomplete personal data. Use the official portal to complete this registration.</string>
     <string name="the_portal_security_certificate_is_missing_from">The portal security certificate is missing from this installation.</string>
@@ -343,10 +343,10 @@
     <string name="username">Username</string>
     <string name="view_in_official_portal">View in official portal</string>
     <string name="x_will_leave_on_x">%1$s will leave on %2$s.</string>
-    <string name="removes_x_days_from_x_s_original_check_out_x_new">Removes %1$d days from %2$s\'s original check-out (%3$s). New check-out: %4$s.</string>
-    <string name="removes_x_day_from_x_s_original_check_out_x_new">Removes %1$d day from %2$s\'s original check-out (%3$s). New check-out: %4$s.</string>
-    <string name="adds_x_day_to_x_s_original_check_out_x_new_check">Adds %1$d day to %2$s\'s original check-out (%3$s). New check-out: %4$s.</string>
-    <string name="adds_x_days_to_x_s_original_check_out_x_new">Adds %1$d days to %2$s\'s original check-out (%3$s). New check-out: %4$s.</string>
+    <string name="removes_x_days_from_x_s_original_check_out_x_new">Removes %1$d days from %2$s's original check-out (%3$s). New check-out: %4$s.</string>
+    <string name="removes_x_day_from_x_s_original_check_out_x_new">Removes %1$d day from %2$s's original check-out (%3$s). New check-out: %4$s.</string>
+    <string name="adds_x_day_to_x_s_original_check_out_x_new_check">Adds %1$d day to %2$s's original check-out (%3$s). New check-out: %4$s.</string>
+    <string name="adds_x_days_to_x_s_original_check_out_x_new">Adds %1$d days to %2$s's original check-out (%3$s). New check-out: %4$s.</string>
     <string name="choose_a_new_check_out_within_the_stay_from_the">Choose a new check-out within the stay, from the check-in day (%1$s) onward.</string>
     <string name="x_keeps_the_original_check_out_x">%1$s keeps the original check-out (%2$s); nothing changes.</string>
 </resources>

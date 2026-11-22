@@ -3,16 +3,16 @@
 <resources>
     <string name="guide_18808">18808</string>
     <string name="guide_a_tourist_visa_does_not_allow_religious">A tourist visa does not allow religious activities. The church in Cuba arranges the invitation and visa, and you must check that your home may host these visitors.</string>
-    <string name="guide_article_38_1_c_of_decree_137_of_2025_requires">Article 38.1.c of Decree 137 of 2025 requires reporting foreign guests\' check-ins and check-outs within 24 hours of the rental.</string>
+    <string name="guide_article_38_1_c_of_decree_137_of_2025_requires">Article 38.1.c of Decree 137 of 2025 requires reporting foreign guests' check-ins and check-outs within 24 hours of the rental.</string>
     <string name="guide_article_69_of_law_173_of_2024_immigration">Article 69 of Law 173 of 2024 (Immigration) requires reporting both check-ins and check-outs to MININT, even when the stay ends within 24 hours. Ask your MININT office how to report departures.</string>
     <string name="guide_be_responsible_for_what_happens_in_the_property">Be responsible for what happens in the property, keep the tenant register for five years, report guests who live abroad to MININT and, before leaving the country, formally appoint a representative for the rental.</string>
     <string name="guide_before_the_first_report">Before the first report</string>
     <string name="guide_call_18808_from_your_mobile_to_ask_for_the">Call 18808 from your mobile to ask for the number to be associated with your host registration.</string>
-    <string name="guide_can_a_tourist_stay_at_a_friend_s_home">Can a tourist stay at a friend\'s home?</string>
+    <string name="guide_can_a_tourist_stay_at_a_friend_s_home">Can a tourist stay at a friend's home?</string>
     <string name="guide_can_i_host_foreigners_coming_for_religious">Can I host foreigners coming for religious activities?</string>
     <string name="guide_check_in_and_check_out_dates">Check-in and check-out dates.</string>
     <string name="guide_companion_living_in_cuba">Companion living in Cuba</string>
-    <string name="guide_confirm_the_main_guest_s_registration_first">Confirm the main guest\'s registration first.</string>
+    <string name="guide_confirm_the_main_guest_s_registration_first">Confirm the main guest's registration first.</string>
     <string name="guide_confirmation">Confirmation</string>
     <string name="guide_confirmation_requests_expire_after_six_hours">Confirmation requests expire after six hours; after that, start again.</string>
     <string name="guide_contact_and_legal_basis">Contact and legal basis</string>
@@ -23,7 +23,7 @@
     <string name="guide_decree_160_of_2026_reporting_obligation_for_non">Decree 160 of 2026: reporting obligation for non-state actors, in force since August 4, 2026.</string>
     <string name="guide_decree_law_133_of_2026_amends_article_27_of">Decree-Law 133 of 2026: amends article 27 of Decree-Law 90 of 2024.</string>
     <string name="guide_decree_law_171_of_1997_rental_of_homes_rooms_or">Decree-Law 171 of 1997: rental of homes, rooms or spaces.</string>
-    <string name="guide_decree_law_90_of_2024_self_employment_article_27">Decree-Law 90 of 2024: self-employment; article 27 sets the hosts\' obligations.</string>
+    <string name="guide_decree_law_90_of_2024_self_employment_article_27">Decree-Law 90 of 2024: self-employment; article 27 sets the hosts' obligations.</string>
     <string name="guide_decree_law_91_of_2024_sets_three_levels_of">Decree-Law 91 of 2024 sets three levels of contravention, fined in units (cuotas):</string>
     <string name="guide_decree_law_91_of_2024_contraventions_and_fines">Decree-Law 91 of 2024: contraventions and fines.</string>
     <string name="guide_diieminintcuba_rem_cu">diieminintcuba@rem.cu</string>
@@ -49,7 +49,7 @@
     <string name="guide_must_a_stay_shorter_than_one_day_be_reported">Must a stay shorter than one day be reported?</string>
     <string name="guide_must_cubans_living_abroad_be_reported">Must Cubans living abroad be reported?</string>
     <string name="guide_name_surnames_citizenship_and_identity_or">Name, surnames, citizenship and identity or passport number of the tenant.</string>
-    <string name="guide_no_the_report_communicates_their_presence_it">No. The report communicates their presence; it does not replace the property\'s authorization.</string>
+    <string name="guide_no_the_report_communicates_their_presence_it">No. The report communicates their presence; it does not replace the property's authorization.</string>
     <string name="guide_non_agricultural_cooperatives">Non-agricultural cooperatives.</string>
     <string name="guide_non_state_economic_actors_authorized_to_rent_out">Non-state economic actors authorized to rent out homes, rooms or spaces must report to the Ministry of the Interior (MININT) the identity details of every guest who lives abroad, and of their companions.</string>
     <string name="guide_not_if_the_home_is_not_authorized_for_it">Not if the home is not authorized for it. Tourists must stay in hotels, other authorized lodging or homes authorized for rental. Foreign relatives need the A-2 family visa to stay with Cuban relatives.</string>
@@ -80,7 +80,7 @@
     <string name="guide_serious">Serious</string>
     <string name="guide_sign_in_at_https_casero_rem_cu_with_your_host">Sign in at https://casero.rem.cu/ with your host account and report the guest and, when applicable, their companions.</string>
     <string name="guide_sms">SMS</string>
-    <string name="guide_step_1_record_the_guest_s_details">Step 1: Record the guest\'s details</string>
+    <string name="guide_step_1_record_the_guest_s_details">Step 1: Record the guest's details</string>
     <string name="guide_step_2_report_to_minint">Step 2: Report to MININT</string>
     <string name="guide_step_3_report_the_departure">Step 3: Report the departure</string>
     <string name="guide_the_fine_depends_on_the_circumstances_of_each">The fine depends on the circumstances of each case (article 4 of Decree-Law 91 of 2024).</string>
@@ -91,7 +91,7 @@
     <string name="guide_the_system_then_sends_a_registration_code_which">The system then sends a registration code, which proves the report was made.</string>
     <string name="guide_there_are_two_remote_channels">There are two remote channels:</string>
     <string name="guide_there_is_no_administrative_fee_the_portal_needs">There is no administrative fee. The portal needs internet access; SMS may incur ETECSA messaging charges.</string>
-    <string name="guide_under_decree_137_of_2025_accommodations_covered">Under Decree 137 of 2025, accommodations covered by its article 38 cannot host foreigners in an irregular migration status without the Immigration Authority\'s consent.</string>
+    <string name="guide_under_decree_137_of_2025_accommodations_covered">Under Decree 137 of 2025, accommodations covered by its article 38 cannot host foreigners in an irregular migration status without the Immigration Authority's consent.</string>
     <string name="guide_very_serious">Very serious</string>
     <string name="guide_wait_for_the_confirmation_the_association_is_not">Wait for the confirmation. The association is not complete until you receive it.</string>
     <string name="guide_wait_for_the_registration_code">Wait for the registration code.</string>
