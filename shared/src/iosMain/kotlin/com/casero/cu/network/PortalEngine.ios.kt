@@ -3,7 +3,10 @@ package com.casero.cu.network
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.engine.darwin.DarwinHttpRequestException
-import kotlinx.cinterop.allocArrayOf
+import kotlinx.cinterop.COpaquePointerVar
+import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.set
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
@@ -96,7 +99,9 @@ private fun evaluate(
         val policy = SecPolicyCreateSSL(true, host)
         CFRelease(host)
         val trusted = memScoped {
-            val anchors = CFArrayCreate(null, allocArrayOf(leaf).reinterpret(), 1, kCFTypeArrayCallBacks.ptr)
+            val values = allocArray<COpaquePointerVar>(1)
+            values[0] = leaf
+            val anchors = CFArrayCreate(null, values, 1, kCFTypeArrayCallBacks.ptr)
             try {
                 SecTrustSetPolicies(trust, policy) == errSecSuccess &&
                     SecTrustSetAnchorCertificates(trust, anchors) == errSecSuccess &&
