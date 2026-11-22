@@ -151,7 +151,7 @@ object AndroidPlatform {
 
     /** Biometrics or the screen lock, through `BiometricPrompt`. */
     private class BiometricCheck : DeviceOwnerCheck {
-        override suspend fun confirm(reason: String): Boolean {
+        override suspend fun confirm(texts: DeviceCheckPrompt): Boolean {
             val host = activity.get() ?: return false
             val allowed = BIOMETRIC_WEAK or DEVICE_CREDENTIAL
             if (BiometricManager.from(host).canAuthenticate(allowed) != BiometricManager.BIOMETRIC_SUCCESS) {
@@ -173,8 +173,9 @@ object AndroidPlatform {
                     },
                 )
                 val info = BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(host.applicationInfo.loadLabel(host.packageManager))
-                    .setSubtitle(reason)
+                    // Android already shows the app's icon and name above the title.
+                    .setTitle(texts.title)
+                    .setDescription(texts.reason)
                     .setAllowedAuthenticators(allowed)
                     .build()
                 prompt.authenticate(info)
