@@ -215,7 +215,8 @@ private fun MainScreen(app: AppState) {
                         isLoginPresented = true
                     }
                 }
-                if (!isConnected) {
+                // SMS reports work without internet; the warning would only confuse there.
+                if (!isConnected && selection != Tab.Sms) {
                     Banner(stringResource(Res.string.no_internet_connection_check_your_wi_fi_or), Icons.Default.WifiOff, Red.copy(alpha = 0.15f))
                 }
                 if (!app.isSignedIn && !app.sessionExpiredBanner && selection != Tab.Sms) {
