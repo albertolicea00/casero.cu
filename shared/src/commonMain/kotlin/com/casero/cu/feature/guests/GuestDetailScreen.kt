@@ -67,7 +67,7 @@ import com.casero.cu.ui.CardDivider
 import com.casero.cu.ui.GuestAvatar
 import com.casero.cu.ui.GuestName
 import com.casero.cu.ui.GuestStayText
-import com.casero.cu.ui.NationalityFlag
+import com.casero.cu.ui.NationalityFlagWithName
 import com.casero.cu.ui.Red
 import com.casero.cu.ui.SectionHeading
 import com.casero.cu.ui.StayTimeline
@@ -244,7 +244,7 @@ fun GuestDetailScreen(
                             GuestName(guest.fullName, Modifier.weight(1f), MaterialTheme.typography.titleLarge)
                             val nationality = guest.displayNationality(isCompanion)
                                 ?: guest.nationalityCode?.trim()?.let(nationalityNamesByCode::get)
-                            NationalityFlag.emoji(nationality)?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
+                            NationalityFlagWithName(nationality, MaterialTheme.typography.titleLarge)
                         }
                         SelectionContainer {
                             Text(
@@ -425,7 +425,7 @@ private fun CompanionSummary(guest: Guest, photo: ImageBitmap?, onUpdateCheckOut
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Row(verticalAlignment = Alignment.Top) {
                     GuestName(guest.fullName, Modifier.weight(1f), MaterialTheme.typography.titleSmall)
-                    NationalityFlag.emoji(guest.displayNationality(isCompanion = true))?.let { Text(it) }
+                    NationalityFlagWithName(guest.displayNationality(isCompanion = true), MaterialTheme.typography.bodyLarge)
                 }
                 Text(
                     stringResource(Res.string.passport_id_x, guest.identificador),
