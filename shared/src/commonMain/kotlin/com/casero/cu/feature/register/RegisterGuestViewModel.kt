@@ -41,7 +41,12 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.StringResource
 
-class RegisterGuestViewModel(private val client: PortalServing, private val now: () -> Instant = PortalDates::now) {
+class RegisterGuestViewModel(
+    private val client: PortalServing,
+    private val now: () -> Instant = PortalDates::now,
+    /** Shows the expired-session banner at once, even if the Register tab is not on screen. */
+    private val onSessionExpired: () -> Unit = {},
+) {
 
     /** Order matches the segmented selector: passport, CI, names, temporary CI. */
     enum class LookupKind(val segmentLabel: StringResource, val fieldLabel: StringResource, val help: StringResource) {
@@ -194,6 +199,7 @@ class RegisterGuestViewModel(private val client: PortalServing, private val now:
             throw error
         } catch (_: PortalError.SessionExpired) {
             isSessionExpired = true
+            onSessionExpired()
         } catch (error: PortalError.Rejected) {
             // The portal matches the first given name only; suggest dropping the second.
             lookupErrorMessage = if (kind == LookupKind.ForeignGuestByName) {
@@ -265,6 +271,7 @@ class RegisterGuestViewModel(private val client: PortalServing, private val now:
             throw error
         } catch (_: PortalError.SessionExpired) {
             isSessionExpired = true
+            onSessionExpired()
         } catch (error: PortalError.RegistrationUncertain) {
             uncertainIDs = uncertainIDs + queue.map { it.identificador.uppercase() }
             errorMessage = error.toUiText()

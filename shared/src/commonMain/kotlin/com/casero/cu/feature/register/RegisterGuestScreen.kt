@@ -137,7 +137,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /** State of the Register tab: the queue must survive switching tabs. */
 class RegisterTab(app: AppState) {
-    val model = RegisterGuestViewModel(app.client)
+    val model = RegisterGuestViewModel(app.client, onSessionExpired = app::reportSessionExpired)
 
     /** Photos seen in the result sheet, reused on the queue cards and in the PDFs. */
     val queuePhotos = mutableStateMapOf<String, ImageBitmap?>()

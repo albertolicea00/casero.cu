@@ -24,6 +24,8 @@ class GuestsViewModel(
     private val photoCache: PhotoCache,
     private val settings: AppSettings,
     private val now: () -> Instant = PortalDates::now,
+    /** Shows the expired-session banner at once, even if the Guests tab is not on screen. */
+    private val onSessionExpired: () -> Unit = {},
 ) {
     enum class Segment { Active, History }
 
@@ -120,6 +122,7 @@ class GuestsViewModel(
             throw error
         } catch (_: PortalError.SessionExpired) {
             isSessionExpired = true
+            onSessionExpired()
         } catch (error: Exception) {
             // Keep whatever cached data is already on screen; surface the error alongside it.
             errorMessage = error.toUiText()

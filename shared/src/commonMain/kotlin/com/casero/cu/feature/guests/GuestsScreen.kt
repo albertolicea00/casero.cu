@@ -128,7 +128,10 @@ import org.jetbrains.compose.resources.stringResource
 
 /** State of the Guests tab that outlives the list screen while a guest is open. */
 class GuestsTab(app: AppState) {
-    val model = GuestsViewModel(app.client, app.guestCache, app.photoCache, app.settings)
+    val model = GuestsViewModel(
+        app.client, app.guestCache, app.photoCache, app.settings,
+        onSessionExpired = app::reportSessionExpired,
+    )
 
     /** Companions per stay, filled as guests are opened. */
     val companionCounts = androidx.compose.runtime.mutableStateMapOf<String, Int>()
