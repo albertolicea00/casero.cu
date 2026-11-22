@@ -81,6 +81,7 @@ secrets.properties
 *.secret
 keys/release.properties
 keys/debug.properties
+keys/ios.properties
 
 # ---------------------------------------------------------------------------
 # OS / editor noise
