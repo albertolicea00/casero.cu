@@ -73,7 +73,7 @@ git clone https://github.com/albertolicea00/casero.cu.git
 cd casero.cu
 make                      # list every task
 make run                  # Android (device or emulator)
-make run PLATFORM=ios     # iOS simulator
+make run ios     # iOS simulator
 make test                 # shared tests on the JVM and the iOS simulator
 ```
 
