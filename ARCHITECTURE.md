@@ -65,6 +65,9 @@ Everything else lives in `commonMain`.
 
 - **Android SMS:** Android does not report whether the user sent the message, so
   the result is always "unknown" and the app says to check the SMS app.
+- **Companions load on their own:** opening a guest asks the portal for the
+  companions (when none are cached and the host is signed in), like the photo.
+  The native app waited for "Load companions".
 - **Cache files:** the guest cache uses new file names (`*-v2.json`). A cache
   written by the native iOS app is ignored; the next reload rebuilds it. Saved
   credentials and settings carry over because the keys did not change.
