@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,7 +90,6 @@ fun GuestDetailScreen(
     nationalityNamesByCode: Map<String, String> = emptyMap(),
     onCompanionsLoaded: (Int) -> Unit = {},
 ) {
-    val scope = rememberCoroutineScope()
     val cacheTTL by app.settings.cacheTTL.collectAsState()
     var photo by remember { mutableStateOf<ImageBitmap?>(null) }
     var photoError by remember { mutableStateOf<UiText?>(null) }
@@ -198,6 +196,8 @@ fun GuestDetailScreen(
         }
     }
 
+    // Loads started here run in app.tasks: companions and photos still reach the cache
+    // (and the companion count on the list) if the host goes back before they finish.
     val checkOut = updatedCheckOut ?: guest.checkOut
 
     Scaffold(
@@ -215,7 +215,7 @@ fun GuestDetailScreen(
             // Photo action.
             Column(Modifier.fillMaxWidth().padding(horizontal = 5.dp), horizontalAlignment = Alignment.End) {
                 Row(
-                    Modifier.clickable(enabled = !isLoadingPhoto) { scope.launch { loadPhoto(forceRefresh = true) } },
+                    Modifier.clickable(enabled = !isLoadingPhoto) { app.tasks.launch { loadPhoto(forceRefresh = true) } },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (isLoadingPhoto) {
@@ -296,7 +296,7 @@ fun GuestDetailScreen(
                         val hasAll = companions.all { companionPhotos[it.id] != null }
                         Row(
                             Modifier.align(Alignment.End).clickable(enabled = !isLoadingCompanionPhotos) {
-                                scope.launch { loadCompanionPhotos(onlyIfMissing = false, forceRefresh = true) }
+                                app.tasks.launch { loadCompanionPhotos(onlyIfMissing = false, forceRefresh = true) }
                             },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -331,7 +331,7 @@ fun GuestDetailScreen(
                         }
                     }
                     Button(
-                        onClick = { scope.launch { loadCompanions() } },
+                        onClick = { app.tasks.launch { loadCompanions() } },
                         enabled = !isLoadingCompanions && guest.stayId.isNotEmpty(),
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                     ) {
@@ -354,7 +354,7 @@ fun GuestDetailScreen(
     }
     updatingCompanion?.let { companion ->
         UpdateCheckOutSheet(app, companion, companionId = companion.companionId, onDismiss = { updatingCompanion = null }) {
-            scope.launch { loadCompanions() }
+            app.tasks.launch { loadCompanions() }
         }
     }
     if (isAddingCompanion) {
@@ -363,7 +363,7 @@ fun GuestDetailScreen(
             guest = guest,
             existingIDs = companions.map { it.identificador.uppercase() }.toSet(),
             onDismiss = { isAddingCompanion = false },
-            onAdded = { scope.launch { loadCompanions() } },
+            onAdded = { app.tasks.launch { loadCompanions() } },
         )
     }
 }

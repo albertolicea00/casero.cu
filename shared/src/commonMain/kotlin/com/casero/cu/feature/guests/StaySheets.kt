@@ -30,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -129,7 +128,6 @@ fun UpdateCheckOutSheet(
     onDismiss: () -> Unit,
     onUpdated: (Instant) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
     /** Portal rule: the new check-out can be as early as the person's check-in day. */
     val earliest = PortalDates.day(person.checkIn ?: PortalDates.now())
     val current = person.checkOut?.let(PortalDates::day)
@@ -140,7 +138,8 @@ fun UpdateCheckOutSheet(
     var successMessage by remember { mutableStateOf<UiText?>(null) }
     val displayName = person.fullName.split('*', ' ').filter { it.isNotEmpty() }.joinToString(" ")
 
-    fun submit() = scope.launch {
+    // Writes run in app.tasks so the portal's answer is never dropped halfway.
+    fun submit() = app.tasks.launch {
         isSubmitting = true
         errorMessage = null
         try {
@@ -272,7 +271,6 @@ private fun StayNights(checkIn: LocalDate, checkOut: LocalDate) {
  */
 @Composable
 fun AddCompanionSheet(app: AppState, guest: Guest, existingIDs: Set<String>, onDismiss: () -> Unit, onAdded: () -> Unit) {
-    val scope = rememberCoroutineScope()
     var carne by remember { mutableStateOf("") }
     var person by remember { mutableStateOf<PersonaValidation?>(null) }
     var photo by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -314,7 +312,7 @@ fun AddCompanionSheet(app: AppState, guest: Guest, existingIDs: Set<String>, onD
         }
     }
 
-    fun lookUp() = scope.launch {
+    fun lookUp() = app.tasks.launch {
         val query = trimmedCarne
         isLookingUp = true
         lookupError = null
@@ -347,7 +345,7 @@ fun AddCompanionSheet(app: AppState, guest: Guest, existingIDs: Set<String>, onD
         }
     }
 
-    fun submit(found: PersonaValidation) = scope.launch {
+    fun submit(found: PersonaValidation) = app.tasks.launch {
         val birthDate = found.birthDate ?: return@launch
         if (validationMessage != null) return@launch
         isSubmitting = true
