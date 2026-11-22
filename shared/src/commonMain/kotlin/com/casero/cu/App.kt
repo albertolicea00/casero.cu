@@ -8,15 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Group
@@ -158,30 +155,7 @@ private fun MainScreen(app: AppState) {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
-                if (app.isSigningOut) {
-                    Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(Res.string.signing_out_of_the_app_session))
-                    }
-                }
-                if (app.sessionExpiredBanner) {
-                    Banner(stringResource(Res.string.app_session_expired_tap_to_sign_in_again), Icons.Default.Warning, Orange.copy(alpha = 0.2f)) {
-                        isLoginPresented = true
-                    }
-                }
-                if (!isConnected) {
-                    Banner(stringResource(Res.string.no_internet_connection_check_your_wi_fi_or), Icons.Default.WifiOff, Red.copy(alpha = 0.15f))
-                }
-                if (!app.isSignedIn && !app.sessionExpiredBanner && selection != Tab.Sms) {
-                    Banner(stringResource(Res.string.sign_in_to_the_app_session), Icons.Default.PersonAdd, Yellow.copy(alpha = 0.25f)) {
-                        isLoginPresented = true
-                    }
-                }
-            }
-            // The banners above already pad for the status bar; screens must not pad again.
-            Box(Modifier.weight(1f).consumeWindowInsets(WindowInsets.statusBars)) {
+            Box(Modifier.weight(1f)) {
                 saveableState.SaveableStateProvider("${selection.name}-${stack.size}") {
                     when (val route = stack.lastOrNull()) {
                         is Route.GuestDetail -> GuestDetailScreen(
@@ -223,6 +197,29 @@ private fun MainScreen(app: AppState) {
                 if (app.isSigningOut) {
                     // Like `.disabled` on iOS: nothing reacts while signing out.
                     Box(Modifier.fillMaxSize().clickable(enabled = true, onClick = {}))
+                }
+            }
+            // Status banners sit right above the tab bar.
+            Column {
+                if (app.isSigningOut) {
+                    Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(Res.string.signing_out_of_the_app_session))
+                    }
+                }
+                if (app.sessionExpiredBanner) {
+                    Banner(stringResource(Res.string.app_session_expired_tap_to_sign_in_again), Icons.Default.Warning, Orange.copy(alpha = 0.2f)) {
+                        isLoginPresented = true
+                    }
+                }
+                if (!isConnected) {
+                    Banner(stringResource(Res.string.no_internet_connection_check_your_wi_fi_or), Icons.Default.WifiOff, Red.copy(alpha = 0.15f))
+                }
+                if (!app.isSignedIn && !app.sessionExpiredBanner && selection != Tab.Sms) {
+                    Banner(stringResource(Res.string.sign_in_to_the_app_session), Icons.Default.PersonAdd, Yellow.copy(alpha = 0.25f)) {
+                        isLoginPresented = true
+                    }
                 }
             }
         }
