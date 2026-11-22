@@ -29,15 +29,15 @@ photos) and **register guests in the host's name**.
 | Remember credentials | **On** | Without it the host types the password on every launch and every session expiry. Opt-out is acceptable because the storage below is device-bound and every use is gated. |
 | Auto re-authenticate | **Off** | It signs in without typing anything. That is a deliberate opt-in, in line with privacy-by-default practice for personal data of third parties. |
 
-Requirements on both platforms (the native iOS client implemented them; see the
-[iOS architecture](docs/reference/ios-architecture.md#saved-credentials)):
+How the credentials are protected on both platforms (details in
+[ARCHITECTURE.md](ARCHITECTURE.md#platform-specific-pieces)):
 
 - **Device-bound storage.** Readable only while the device is unlocked and never
   restored to another device from a backup: Keychain with
   `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` on iOS, Android Keystore with
   backup excluded on Android.
 - **Device owner check before every use.** Biometrics or the device passcode
-  before signing in with saved credentials. Without it, anyone holding an unlocked
+  (`BiometricPrompt` / `LAContext`) before signing in with saved credentials. Without it, anyone holding an unlocked
   phone could open the app and act as the host. If the device has no lock screen,
   or the user cancels, there is no silent sign-in and the sign-in banner is shown
   instead.
