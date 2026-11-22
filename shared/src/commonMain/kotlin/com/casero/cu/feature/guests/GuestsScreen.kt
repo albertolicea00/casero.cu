@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -67,6 +68,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
@@ -616,7 +618,11 @@ private fun GuestScrubber(
                 titles[guests.getOrNull(index)?.id] ?: "—",
                 Modifier
                     .align(Alignment.TopEnd)
-                    .offset { IntOffset(-with(density) { 52.dp.roundToPx() }, position.coerceAtMost((height - with(density) { 28.dp.toPx() }).coerceAtLeast(0f)).roundToInt()) }
+                    // The scrubber column is 44 dp wide; the bubble keeps its own width and
+                    // grows to the left of the thumb, like `fixedSize` on iOS.
+                    .wrapContentWidth(Alignment.End, unbounded = true)
+                    .offset { IntOffset(-with(density) { 52.dp.roundToPx() }, position.coerceAtMost((height - with(density) { 36.dp.toPx() }).coerceAtLeast(0f)).roundToInt()) }
+                    .shadow(5.dp, CircleShape)
                     .background(MaterialTheme.colorScheme.card, CircleShape)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 style = MaterialTheme.typography.labelMedium,
