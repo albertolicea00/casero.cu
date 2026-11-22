@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -154,7 +155,8 @@ private fun MainScreen(app: AppState) {
             }
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
+        // The tab bar already pads for the system bars; screens must not pad again.
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
             Box(Modifier.weight(1f)) {
                 saveableState.SaveableStateProvider("${selection.name}-${stack.size}") {
                     when (val route = stack.lastOrNull()) {
