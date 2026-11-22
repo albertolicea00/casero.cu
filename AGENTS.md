@@ -76,6 +76,7 @@ make run                  # Android app on every connected device (starts the fi
 make run DEVICE=<serial>  # Android app on one device (`make devices` lists them)
 make run ios              # iOS app on a simulator (SIMULATOR="iPhone 17 Pro Max")
 make emulator             # open the Android emulator window
+make install              # your physical iPhone and Android phones (`make install ios|android`)
 make test                 # shared tests on the JVM and the iOS simulator
 make check                # tests, Android lint and `git diff --check` (release gate)
 make build                # both debug builds
@@ -85,6 +86,12 @@ Underneath: `./gradlew :shared:testDebugUnitTest :shared:iosSimulatorArm64Test`,
 `./gradlew :androidApp:assembleDebug`, and for iOS `xcodegen generate` in `iosApp/`
 followed by `xcodebuild`. The Xcode project is generated from `iosApp/project.yml`
 and git-ignored; its build phase runs `:shared:embedAndSignAppleFrameworkForXcode`.
+
+`make install ios` signs with `DEVELOPMENT_TEAM` from `keys/ios.properties`
+(git-ignored; copy `keys/ios.properties.example`) or `TEAM=<id>`. With a free
+personal team iOS stops opening the app after 7 days; install again to renew.
+The scripts behind `make install` (`scripts/`) stop with what went wrong and
+how to fix it.
 
 Tests never contact the real portal: they use Ktor's `MockEngine`, fabricated
 fixtures and an in-memory file system.
