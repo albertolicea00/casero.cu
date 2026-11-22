@@ -28,7 +28,7 @@ IOS_BUILD := build/ios
 IOS_APP := $(IOS_BUILD)/Build/Products/Debug-iphonesimulator/CaseroCu.app
 
 .DEFAULT_GOAL := help
-.PHONY: help run install build test check clean ios android \
+.PHONY: help run install build test test-device check clean ios android \
 	android-build android-install android-run android-release emulator android-device devices \
 	android-device-install ios-project ios-build ios-run ios-device-install simulator
 
@@ -49,6 +49,10 @@ build: android-build ios-build ## Build both apps (debug)
 
 test: ## Run the shared tests on Android (JVM) and the iOS simulator
 	$(GRADLE) :shared:testDebugUnitTest :shared:iosSimulatorArm64Test
+
+test-device: ## Android tests on a device: Keystore, PDF, bundled certificate (DEVICE=<serial>)
+	@$(MAKE) --no-print-directory android-device
+	$(GRADLE) :androidApp:connectedDebugAndroidTest
 
 check: ## Tests, Android lint and whitespace check
 	$(GRADLE) :shared:testDebugUnitTest :shared:iosSimulatorArm64Test :androidApp:lintDebug

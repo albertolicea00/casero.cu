@@ -78,6 +78,7 @@ make run ios              # iOS app on a simulator (SIMULATOR="iPhone 17 Pro Max
 make emulator             # open the Android emulator window
 make install              # your physical iPhone and Android phones (`make install ios|android`)
 make test                 # shared tests on the JVM and the iOS simulator
+make test-device          # Android tests on a device or emulator (Keystore, PDF, certificate)
 make check                # tests, Android lint and `git diff --check` (release gate)
 make build                # both debug builds
 ```
