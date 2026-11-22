@@ -107,7 +107,7 @@ fun SmsReportScreen(
     onOpenCubatramiteGuide: () -> Unit,
 ) {
     var selectedKind by remember {
-        mutableStateOf(if (model.kind == SmsReportViewModel.Kind.Companion) model.kind else SmsReportViewModel.Kind.Guest)
+        mutableStateOf(if (model.kind == SmsReportViewModel.Kind.CubanCompanion) model.kind else SmsReportViewModel.Kind.Guest)
     }
     var isInfoPresented by remember { mutableStateOf(false) }
     val canSendText = messages.canSendText
@@ -145,7 +145,7 @@ fun SmsReportScreen(
         ) {
             Caption(stringResource(Res.string.tap_preview_sms_to_open_the_prepared_message_in))
 
-            val kinds = listOf(SmsReportViewModel.Kind.Guest, SmsReportViewModel.Kind.Companion)
+            val kinds = listOf(SmsReportViewModel.Kind.Guest, SmsReportViewModel.Kind.CubanCompanion)
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 kinds.forEachIndexed { index, kind ->
                     SegmentedButton(
@@ -169,7 +169,7 @@ fun SmsReportScreen(
                         stringResource(Res.string.guest_passport),
                         capitalization = KeyboardCapitalization.Characters,
                     )
-                    if (selectedKind == SmsReportViewModel.Kind.Companion) {
+                    if (selectedKind == SmsReportViewModel.Kind.CubanCompanion) {
                         CardDivider()
                         CardTextField(
                             model.companionIdentity,

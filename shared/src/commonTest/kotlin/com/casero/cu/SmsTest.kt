@@ -49,7 +49,7 @@ class SmsFlowTest {
     @Test
     fun mainGuestMustBeRegisteredBeforeCompanion() {
         val model = SmsReportViewModel()
-        model.kind = SmsReportViewModel.Kind.Companion
+        model.kind = SmsReportViewModel.Kind.CubanCompanion
         model.passport = "TEST0001"
         model.days = "5"
         model.companionIdentity = "00000000000"

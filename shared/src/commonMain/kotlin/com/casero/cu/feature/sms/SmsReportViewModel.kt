@@ -22,7 +22,7 @@ import org.jetbrains.compose.resources.StringResource
 class SmsReportViewModel {
     enum class Kind(val label: StringResource) {
         Guest(Res.string.foreign_guest),
-        Companion(Res.string.cuban_companion),
+        CubanCompanion(Res.string.cuban_companion),
         Confirmation(Res.string.confirm_received_code),
     }
 
@@ -62,7 +62,7 @@ class SmsReportViewModel {
 
     private fun messageBody(kind: Kind): String = when (kind) {
         Kind.Guest -> SmsReporter.reportBody(passport, days)
-        Kind.Companion -> {
+        Kind.CubanCompanion -> {
             val body = SmsReporter.reportBody(passport, days, companionIdentity)
             if (!mainGuestIsRegistered) throw MainGuestNotConfirmed()
             body
