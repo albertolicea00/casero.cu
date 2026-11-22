@@ -1,0 +1,37 @@
+<!-- Keep the title in Conventional Commits style, e.g. "feat(guests): add paging" -->
+
+## Summary
+
+<!-- What does this PR change and why? -->
+
+## Related issue
+
+<!-- e.g. Closes #123 -->
+
+## Type of change
+
+- [ ] `feat` — new feature
+- [ ] `fix` — bug fix
+- [ ] `docs` — documentation only
+- [ ] `refactor` — no behavior change
+- [ ] `test` — tests only
+- [ ] `chore` / `build` / `ci`
+
+## Platforms affected
+
+- [ ] Shared (`commonMain`)
+- [ ] Android only
+- [ ] iOS only
+
+## Checklist
+
+- [ ] Code and comments are in English
+- [ ] The project builds for Android and iOS
+- [ ] Shared tests pass
+- [ ] Commits follow Conventional Commits, with no AI/tool attribution
+- [ ] No credentials, tokens, signing material, or real guest data are included
+- [ ] TLS handling changes (if any) are scoped to `casero.rem.cu` only
+
+## Notes for reviewers
+
+<!-- Anything reviewers should focus on, screenshots, edge cases, etc. -->

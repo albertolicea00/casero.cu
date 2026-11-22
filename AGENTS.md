@@ -1,0 +1,450 @@
+# AGENTS.md — CASERO
+
+Single source of truth for anyone working in this repository: humans, Claude
+Code (`CLAUDE.md` imports this file), Codex and other coding agents. Keep it
+current: when you learn something about the portal, update the matching section
+and the [findings log](#findings-log) in the same commit; when you change how the
+app works, update [ARCHITECTURE.md](ARCHITECTURE.md).
+
+Contents:
+
+1. [What this is](#what-this-is)
+2. [Conventions](#conventions)
+3. [Commands](#commands)
+4. [Portal API reference](#portal-api-reference)
+5. [SMS reporting contract](#sms-reporting-contract)
+6. [Capturing portal traffic](#capturing-portal-traffic)
+7. [Findings log](#findings-log)
+8. [Open questions and known issues](#open-questions-and-known-issues)
+9. [What not to do](#what-not-to-do)
+
+How the app is built (module layout, platform-specific pieces, release
+checklist) is in [ARCHITECTURE.md](ARCHITECTURE.md). Read both before changing
+networking or registration code.
+
+---
+
+## What this is
+
+Cross-platform (iOS + Android) client that lets Cuban lodging hosts report
+guests to immigration. It is an **unofficial** client for the official portal at
+`https://casero.rem.cu/` and for the SMS reporting codes. Not affiliated with
+CIDP-MININT.
+
+Built with Kotlin Multiplatform and Compose Multiplatform: one codebase for both
+platforms. It replaces the native clients, now archived:
+
+- [`casero.cu-ios`](https://github.com/albertolicea00/casero.cu-ios) — Swift/SwiftUI,
+  feature-complete. **It is the reference implementation for the port**: its
+  behavior, tests and fixtures define what this app must do.
+- [`casero.cu-apk`](https://github.com/albertolicea00/casero.cu-apk) — Kotlin/Compose,
+  partial.
+
+The portal sections below were written against the iOS client. File names such
+as `CaseroClient.swift` or `GuestsView.swift` and iOS APIs (`URLSession`,
+`MFMessageComposeViewController`, Safari) point to that implementation; the
+contract they describe applies unchanged here. The iOS architecture is kept in
+[docs/reference/ios-architecture.md](docs/reference/ios-architecture.md).
+
+Related docs: [ARCHITECTURE.md](ARCHITECTURE.md), [README.md](README.md) /
+[README.es.md](README.es.md) (features, setup; keep both in sync),
+[SECURITY.md](SECURITY.md) (credential design, reporting vulnerabilities).
+
+## Conventions
+
+- **All code, comments, identifiers and docs are written in English.** The UI is
+  localized in English and Spanish. Add every new user-facing string to both.
+- **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/)
+  (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `build:`, `ci:`).
+- Do **not** add AI/tool attribution or co-author trailers to commits.
+- Kotlin Multiplatform + Compose Multiplatform. Targets: Android and iOS 16+.
+- Put logic in `commonMain`. Platform code (`androidMain`, `iosMain`) only for
+  what has no common API: TLS pinning, secure credential storage, biometrics,
+  SMS composer, USSD (Android only). Expose it through `expect`/`actual` or an
+  interface in `commonMain`.
+- Never commit signing material, tokens, credentials, cookies, or real guest
+  data. Tests and docs use made-up people and documents.
+- Match the surrounding code: comment density, naming, and idiom.
+
+## Commands
+
+The Gradle project is not scaffolded yet. Commands go here once it is.
+
+---
+
+## Portal API reference
+
+Reverse-engineered from browser traffic. "Confirmed" means seen in a browser
+capture; "assumed" means implemented without a capture. Examples use made-up
+data.
+
+### Conventions of the portal
+
+- **ASP.NET MVC** under `https://casero.rem.cu/Plataforma/`. Behave like a
+  browser: one `URLSession` with `HTTPCookieStorage.shared`, cookies on every
+  request, redirects **not** followed (they are signals, see below).
+- **Cookies after login:** `__RequestVerificationToken_L1BsYXRhZm9ybWE1`
+  (anti-forgery cookie token), `ASP.NET_SessionId`, `__ca_`.
+- **Anti-forgery form token:** every POST carries `__RequestVerificationToken`
+  taken from the hidden input of the page the browser would be on (`AntiForgery`
+  parses it). The app fetches that page right before each POST.
+- **JSON endpoints** are form POSTs (`application/x-www-form-urlencoded;
+  charset=UTF-8`) with `X-Requested-With: XMLHttpRequest`, `Accept:
+  application/json` and a `Referer` of the page they belong to.
+- **Dates** arrive as `/Date(<epoch ms>)/` (sometimes with escaped slashes
+  `\/Date(...)\/`). UTC milliseconds. `-62135578800000` is .NET
+  `DateTime.MinValue` = "no date". Dates sent to the portal are `dd/MM/yy` in
+  **Cuba time** (`America/Havana`, see `PortalDates`).
+- **Session expired:** a `GET` answers `302` to the login page; a JSON POST
+  answers `{ "message": "REDIRECT" }` (or a `302`). Both map to
+  `PortalError.sessionExpired`.
+- **Errors with a message:** lookups and registration answer
+  `{ "success": false, "message": "<Spanish text>", "errors": { "nombre": "Error" } }`.
+  Show `message` verbatim (always Spanish).
+- **TLS:** the certificate is issued by a private Cuban CA and fails standard
+  validation. The app pins it; see [the iOS architecture](docs/reference/ios-architecture.md#pinned-tls-certificate).
+- **Reachability:** the portal is only reachable from networks in Cuba. Expect
+  connection failures elsewhere; fall back to SMS.
+
+### Authentication — confirmed
+
+1. `GET /Cuenta/IniciarSesion` — login page: hidden `__RequestVerificationToken`
+   plus the anti-forgery cookie.
+2. `POST /Cuenta/IniciarSesion` — body `__RequestVerificationToken`, `User`,
+   `Password`.
+   - Success: `302` to `/Plataforma/` and the session cookies are set.
+   - Bad credentials: `200` with the login page again → `invalidCredentials`.
+3. `GET /Cuenta/CerrarSesion` — logout.
+4. `GET /Cuenta/Perfil` — profile page. A normal page navigation (not AJAX);
+   there is no JSON endpoint. The data is an HTML table inside
+   `<div class="row well perfil">`: pairs of `<td class="titulo">label</td>`
+   `<td class="texto">value</td>` with the labels `Primer Nombre`,
+   `Segundo Nombre`, `Primer Apellido`, `Segundo Apellido`, `CI`, `Provincia`,
+   `Usuario`, `Municipio` and `Direcci&oacute;n` (address in one `colspan="3"`
+   cell). Labels may contain HTML entities. The page also has an "Acerca de"
+   modal with the same `titulo`/`texto` classes **before** the profile block,
+   and the change-password `<form>` after it. `PortalProfile.parse` reads only
+   the profile block (covered by `testPortalProfileParsesProfileTable`).
+5. Password change: the profile form calls
+   `cambiarCredenciales('/Plataforma/Gestionar/CambiarCredencialesAjax')` from
+   `Scripts/Casero/Perfil.js`, with fields `txt-claveanterior`, `txt-nuevaclave`
+   and `txt-renuevaclave`. The request body and answer were not captured; the
+   app does not call it and opens `Cuenta/Perfil` in Safari instead.
+
+Password rule enforced by the portal (mirror it for early validation): 8–100
+characters, regex `^(?=.*[A-Z])(?=.*\W)(?=.*[0-9])(?=.*[a-z]).*$`.
+
+### Guest lists — confirmed
+
+- Pages: `GET /Huespedes` (register), `/Huespedes/HuespedesActivos` (active),
+  `/Huespedes/HuespedesRegistrados` (registered).
+- `POST /Huespedes/ListarHuespedes` — `fechaInicio=dd/MM/yy`, `fechaFin=dd/MM/yy`,
+  `cantMaxRegistros=<page size>`, `pagina=<1-based>`, token. Referer
+  `Huespedes/HuespedesRegistrados`. **Used by the app** (Guests tab, all pages).
+- `POST /Huespedes/ListarHuespedesActivos` — same without the dates. Referer
+  `Huespedes/HuespedesActivos`. Captured, **not used** (the app filters active
+  stays locally).
+
+```json
+{ "Error": "", "Pagina": 1, "Total": 2,
+  "ListaHuespedes": [
+    { "Biografico": "JUAN PEREZ GOMEZ", "Identificador": "X0000001",
+      "FechaEntrada": "/Date(1786420800000)/", "FechaSalida": "/Date(1788148800000)/",
+      "FechaNacimiento": "/Date(-62135578800000)/", "Nacionalidad": "201",
+      "DescNacionalidad": "MEXICO", "Procedencia": null, "Sexo": null,
+      "EstanciaId": "20000001", "Respuesta": null } ] }
+```
+
+In lists, `FechaNacimiento` is usually `MinValue` and `Sexo`/`Procedencia` are
+`null`; do not rely on them. A non-empty `Error` is surfaced, never hidden.
+
+### Companions — assumed
+
+`POST /Huespedes/ListarAcompannantes` — the app sends `estanciaId`,
+`cantMaxRegistros`, `pagina`, token (referer `HuespedesRegistrados`) and expects
+the list under `ListaAcompannantes`. **Never captured**; the Guests detail falls
+back to the official portal when it fails. Companions are Cuban nationals
+identified by CI and may carry an `Id`.
+
+### Photos — confirmed (foreign), assumed (companion)
+
+- `GET /Huespedes/ObtenerFotoDiie?pasap=<document>&nomb=<first>&apel1=<surname1>&apel2=<surname2>&ciud=<nationality code>&sexo=<M|F>`
+  — returns an image. The **web sends all name parts**; the app sends only the
+  first name with empty surnames. It has worked, but check this first if a photo
+  is missing.
+- `GET /Huespedes/ObtenerFotoSUINPorCi?ci=<CI>` — photo of a Cuban national.
+
+### Person lookups — confirmed
+
+All `POST`, referer `Huespedes`, token from `GET /Huespedes`. The answer is an
+**array** of people (older captures showed a bare object; accept both):
+
+```json
+[ { "IdPersona": null, "Identificador": "X0000001", "Nombre": "JUAN",
+    "Nombre2": "CARLOS", "Apellido1": "PEREZ", "Apellido2": "GOMEZ",
+    "Biografico": "JUAN CARLOS PEREZ GOMEZ", "Sexo": "M",
+    "FechaNac": "/Date(122533200000)/", "Nacionalidad": "201",
+    "DescNacionalidad": "MEXICO", "Estado": "Entrada", "Respuesta": null } ]
+```
+
+Not found: `{ "success": false, "message": "Persona no encontrada.", "errors": { "nombre": "Error" } }`.
+
+| Endpoint | Body | Portal help text (verbatim) | Status |
+|---|---|---|---|
+| `ValidarPersonaDiie` | `identificador=<passport>&tipo=0` | "Esta opción de búsqueda solo es válida para extranjeros y cubanos residentes permanentes en el exterior" | confirmed |
+| `ValidarPersonaDiie` | `identificador=NOMBRE_APELLIDO1_APELLIDO2&tipo=2` | same as passport | confirmed |
+| `ValidarPersonaDiie` | `identificador=<temporary CI>&tipo=3` | "Esta opción de búsqueda solo es válida para extranjeros residentes permanentes o temporales en Cuba" | only "not found" captured |
+| `ValidarPersonaSuin` | `identificador=<CI>` | "Esta opción de búsqueda solo es válida para nacionales" | confirmed |
+
+Details:
+
+- Name lookup: uppercase, parts joined by `_`. An empty second surname keeps
+  the trailing underscore (`JUAN_PEREZ_`) and still matches. **Only the first
+  given name matches**: `JUAN_PEREZ_GOMEZ` finds JUAN CARLOS PEREZ GOMEZ, while
+  adding CARLOS finds nobody. Several people can match.
+- `Nombre2` is `null` or `""` when there is no second given name.
+- `Estado` (`"Entrada"`, `null`) is returned but its meaning is not confirmed.
+- `IdPersona` is a GUID for Cuban nationals (SUIN) and `null` for foreigners.
+- `tipo=1` was never seen.
+
+### Registration — confirmed
+
+`POST /Huespedes/RegistrarHuesped` — body `personas=<entries>` plus token,
+referer `Huespedes`. Entries are joined by `|`; one entry:
+
+```
+NOMBRE*NOMBRE2*APELLIDO1*APELLIDO2,IDENTIFICADOR,NACIONALIDAD,SEXO,dd/MM/yy(birth),dd/MM/yy(check-in),dd/MM/yy(check-out),PROCEDENCIA
+```
+
+```
+JUAN**PEREZ*GOMEZ,X0000001,201,M,19/11/73,18/11/26,21/11/26,201|ANA*MARIA*LOPEZ*DIAZ,00000000001,247,F,06/04/85,18/11/26,21/11/26,247
+```
+
+- Four name parts joined by `*`; an empty second name leaves `**`. A missing
+  second surname is **assumed** to leave a trailing `*` (`JUAN**PEREZ*`), not yet
+  captured. Fields must not contain `, | * \n \r` (the app refuses them).
+- Dates `dd/MM/yy`, Cuba time. `PROCEDENCIA` has always equalled the
+  nationality code in captures.
+- The browser sends a main guest and their companions in **one** call.
+- Answer: an array (a bare object when one person was sent), one item per
+  person with `"Respuesta": "OK"` and `"EstanciaId"`. `Biografico` echoes the
+  wire name (`JUAN**PEREZ*GOMEZ`). Companions sent with their main guest get
+  `<stay id>.1`, `.2`, …
+
+```json
+[ { "Biografico": "JUAN**PEREZ*GOMEZ", "Identificador": "X0000001",
+    "FechaEntrada": "/Date(1794978000000)/", "FechaSalida": "/Date(1795237200000)/",
+    "FechaNacimiento": "/Date(122533200000)/", "Nacionalidad": "201",
+    "DescNacionalidad": "MEXICO", "Procedencia": "201", "Sexo": "M",
+    "EstanciaId": "20000001", "Respuesta": "OK" },
+  { "Biografico": "ANA*MARIA*LOPEZ*DIAZ", "Identificador": "00000000001",
+    "EstanciaId": "20000001.1", "Respuesta": "OK", "...": "..." } ]
+```
+
+- Refusal: `{ "success": false, "message": "No se ha registrado ningún huésped.",
+  "errors": { "nombre": "Error" } }`. The portal gives **no reason**.
+- Re-sending an already registered guest once answered `OK` with the same
+  `EstanciaId`. One observation only; never rely on it to retry.
+- Check-in can be at most **7 days back** (today the 21st → the 14th), counted
+  in Cuba time. Future and maximum-stay limits are unknown.
+
+### Companions of an active stay — confirmed
+
+From the active-guests page (`Huespedes/HuespedesActivos`), the browser adds a
+Cuban companion to an existing stay. Token and referer come from that page.
+
+1. `POST /Huespedes/ValidarPersonaSuin` — `identificador=<CI>&tipoDocumento=1`.
+   Same person array as the other lookups.
+2. `POST /Huespedes/RegistrarAcompannantes` — `estanciaId=<guest stay id>`,
+   `personas=<entry>`, token. One entry has **7 fields** and the name **with
+   spaces** (not the `*` format), no origin field:
+
+   ```
+   ANA MARIA LOPEZ DIAZ,00000000001,247,F,06/04/85,22/11/26,23/11/26
+   ```
+
+   Several companions are assumed to be joined by `|` (only one was captured).
+3. Answer: one item per companion with the **guest's** `EstanciaId` (no `.1`
+   suffix) and the companion's own `"Id"`:
+
+   ```json
+   [ { "Biografico": "ANA MARIA LOPEZ DIAZ", "Identificador": "00000000001",
+       "FechaEntrada": "/Date(1795323600000)/", "FechaSalida": "/Date(1795410000000)/",
+       "FechaNacimiento": "/Date(481611600000)/", "Sexo": "F",
+       "EstanciaId": "20000001", "Id": "1", "Respuesta": "OK" } ]
+   ```
+
+   Refusals are assumed to use the same `{ success: false, message }` shape.
+   Whether companion dates must fall inside the guest's stay is unknown.
+
+### Check-out updates — confirmed
+
+From the active-guests page; token and referer `Huespedes/HuespedesActivos`.
+
+| Who | Endpoint | Body |
+|---|---|---|
+| Main guest | `POST /Huespedes/ActualizarFechaSalidaHuesped` | `estanciaId=<stay id>&fechaSalida=dd/MM/yy` |
+| Companion | `POST /Huespedes/ActualizarFechaSalidaAcompannante` | `estanciaId=<stay id>&acompananteId=<companion Id>&fechaSalida=dd/MM/yy` |
+
+- Note the field spelling `acompananteId` (one `n`), unlike the endpoint names.
+  The companion `Id` is the one returned by `RegistrarAcompannantes` and by the
+  companion list.
+- Answer: `{ "success": true, "message": "La operación se ha realizado satisfactoriamente." }`.
+  `success: false` is assumed to carry the reason in `message`.
+- Rule: the new check-out can be as early as the person's **own check-in day**
+  (checked in yesterday → yesterday at the earliest). Upper limit unknown.
+- Setting the same date twice is harmless, so a lost answer is not treated as
+  uncertain: the host can simply retry.
+
+### Communication channels (`Vías de Comunicación`)
+
+`GET /ViasComunicacion` hosts the form for the host's phones and e-mails
+(phones stored as `+535XXXXXXX`).
+
+- List: `POST /ViasComunicacion/ListarViasComunicacion`, AJAX headers, body
+  `__RequestVerificationToken=<token from /ViasComunicacion>` only.
+  Answer: `[{ "Tipo": "sms", "Valor": "+535XXXXXXX" }, …]`. Phones come back as
+  `Tipo: "sms"`; the e-mail `Tipo` has not been captured yet, so the app treats
+  any other `Tipo` as an e-mail. Settings → Account shows this list read-only
+  (`CaseroClient.listCommunicationChannels`).
+- Modify: never captured, so the app does **not** call it. Adding or removing
+  channels opens the official page in Safari.
+
+---
+
+## SMS reporting contract
+
+The supplied reference material documents SMS, not a USSD dial string:
+
+- Destination: `7344`.
+- Associate the host's phone first by calling `18808` and waiting for confirmation.
+- Foreign guest request: `HC<passport> <stay days>`.
+- Cuban companion request: `HC<main guest passport> <companion identity number> <stay days>`.
+  Confirm the main guest's registration before reporting companions.
+- The first reply supplies guest data and a confirmation code. After reviewing
+  that data, send `HC<confirmation code>` to the same destination.
+- Only the final registration code establishes that the service registered the
+  report. Sending an SMS alone is not registration success.
+- Each person has a separate exchange. Confirmation requests expire after six
+  hours according to the published instructions.
+- iOS presents `MFMessageComposeViewController`; the user sends each message.
+  Never auto-send, read SMS inbox contents, or invent a USSD command.
+
+References: the SMS procedure section of the sibling web project's `index.html`
+and [the published guide](https://cubatramite.com/reporte-a-inmigracion-del-registro-de-turistas-extranjeros-hospedados-en-viviendas-de-alquiler/).
+Carrier acceptance still requires a phone with the host's registered number.
+
+---
+
+## Capturing portal traffic
+
+When a behaviour is unknown, capture it from the official web instead of
+guessing:
+
+1. Open the portal page in a desktop browser, DevTools → Network, filter
+   **Fetch/XHR**.
+2. Do the action **only if it is real** (a guest you must report anyway). Never
+   register test or already-reported people: it is a real report to immigration
+   in the host's name.
+3. Copy the request (as cURL), its form data and the response into a file under
+   `.ignore/` (git-ignored).
+4. Document the shape here with made-up data, never the captured values.
+5. The captures contain live session cookies: sign out of the portal afterwards.
+
+To read how the browser builds a request without sending anything, search the
+page's JavaScript (DevTools → Sources, search `RegistrarHuesped` or the field
+name).
+
+---
+
+## Findings log
+
+Newest first. Each entry: what was learned and how.
+
+- **2026-11-22** — Profile: `GET /Cuenta/Perfil` renders the account as a
+  `td.titulo`/`td.texto` table inside `div.perfil`; password changes go to
+  `Gestionar/CambiarCredencialesAjax` (web capture of the page). Profile is read
+  and shown in Settings; password change stays on the web.
+- **2026-11-22** — Communication channels list:
+  `POST /ViasComunicacion/ListarViasComunicacion` with only the token answers
+  `[{ Tipo, Valor }]`, phones as `Tipo: "sms"` (web capture). Implemented,
+  read-only.
+
+- **2026-11-22** — Check-out updates: `ActualizarFechaSalidaHuesped` and
+  `ActualizarFechaSalidaAcompannante` (`acompananteId`), answer
+  `{ success: true, message }`; earliest date is the person's check-in day (web
+  capture, host). Implemented; covered by `testUpdateCheckOutMatchesPortal`.
+
+- **2026-11-22** — Adding a companion to an active stay: `ValidarPersonaSuin`
+  with `tipoDocumento=1`, then `RegistrarAcompannantes` with `estanciaId` and a
+  7-field entry with the name in spaces; the answer carries the guest's stay ID
+  and the companion's `Id` (web capture). Implemented; covered by
+  `testAddCompanionMatchesPortal`.
+
+- **2026-11-22** — First registration sent **from the app** to the live portal:
+  accepted, and "Last result" showed the stay IDs (host, on device). Closes the
+  end-to-end check of issue #2.
+- **2026-11-21** — `RegistrarHuesped` refusal returns
+  `{ success: false, message: "No se ha registrado ningún huésped." }` with no
+  reason (web capture). The app shows it verbatim.
+- **2026-11-21** — Check-in accepted up to 7 days back (host, from the portal).
+- **2026-11-21** — Registration wire name is `NOMBRE*NOMBRE2*APELLIDO1*APELLIDO2`;
+  `**` without a second name. Main guest + companion in one call; companion gets
+  `<stay id>.1` (web capture). The app used to send the second name inside the
+  first; fixed and covered by `testRegistrationWireFormatMatchesPortal`.
+- **2026-11-21** — Name lookup matches the first given name only; an empty second
+  surname (`NOMBRE_APELLIDO1_`) still matches (host, web).
+- **2026-11-21** — Lookups answer an **array**; `ValidarPersonaSuin` too. "Not
+  found" is `{ success: false, message }`. `tipo=3` exists for temporary CI.
+  Portal help texts for each lookup recorded above (web captures).
+- **2026-11-21** — Passport lookup also covers Cubans living abroad (portal help
+  text), so "companion" cannot be derived from nationality `247`.
+- **Earlier (`.ignore/requests.txt`)** — login/logout, `ListarHuespedes`,
+  `ListarHuespedesActivos`, passport and name lookups (then a bare object), and
+  `RegistrarHuesped` for one and two people.
+
+---
+
+## Open questions and known issues
+
+Open questions (capture from the web when they happen; moved here from issue #2,
+now closed):
+
+- Registration of a person **without a second surname** (expected `NOMBRE**APELLIDO1*`).
+- `tipo=3` lookup when the person **is** found.
+- Whether the portal accepts a companion sent alone.
+- Future check-in and maximum-stay limits.
+- Why the portal refuses a registration (it returns no reason).
+- `ListarAcompannantes` request and response (assumed, never captured).
+- Check-out updates: the latest allowed date and the shape of a refusal.
+- `RegistrarAcompannantes`: several companions in one call, refusal shape, and
+  whether companion dates must fall inside the guest's stay.
+- Meaning of `Estado` in lookups.
+- `ListarViasComunicacion`: the `Tipo` value for e-mails, and the add/remove
+  channels request ([#4](https://github.com/albertolicea00/casero.cu-ios/issues/4)).
+- `Gestionar/CambiarCredencialesAjax`: request body and answer (only the URL and
+  form field ids are known) ([#3](https://github.com/albertolicea00/casero.cu-ios/issues/3)).
+
+Known issues:
+
+- 4 tests in `SMSReportingTests` fail: they expect an SMS confirmation flow the
+  model no longer has. Predates the registration work.
+- `swift-format lint --strict` reports formatting errors (mostly
+  `GuestsView.swift`); run `swift-format format` before a release.
+- `GuestPhotoService` asks for a Cuban's photo through the CI endpoint whenever
+  the nationality is CUBA, which is wrong for Cubans found by passport (their
+  identifier is a passport, not a CI). Inferred from code, not reproduced.
+
+---
+
+## What not to do
+
+- Do not hardcode credentials, tokens, cookies, or real guest data anywhere,
+  including tests, docs, issues and screenshots.
+- Do not weaken TLS validation for hosts other than `casero.rem.cu`.
+- Do not sign in with saved credentials without the device owner check.
+- Do not resend a registration automatically after a lost answer.
+- Do not register test or already-reported people against the live portal.
+- Do not guess an undocumented endpoint or write action; capture it first.
+- Do not fork platform logic: shared behavior goes in `commonMain`, never
+  duplicated in `androidMain` and `iosMain`.

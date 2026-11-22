@@ -1,0 +1,97 @@
+# ---------------------------------------------------------------------------
+# Gradle / Kotlin
+# ---------------------------------------------------------------------------
+.gradle/
+build/
+**/build/
+.kotlin/
+*.class
+*.log
+
+# Local configuration file (SDK path, etc.)
+local.properties
+
+# ---------------------------------------------------------------------------
+# Android
+# ---------------------------------------------------------------------------
+*.apk
+*.aar
+*.ap_
+*.aab
+*.dex
+captures/
+.externalNativeBuild/
+.cxx/
+.navigation/
+google-services.json
+
+# ---------------------------------------------------------------------------
+# IntelliJ / Android Studio / Fleet
+# ---------------------------------------------------------------------------
+*.iml
+.idea/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+.fleet/
+
+# ---------------------------------------------------------------------------
+# Xcode (iosApp)
+# ---------------------------------------------------------------------------
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+Pods/
+GoogleService-Info.plist
+
+# ---------------------------------------------------------------------------
+# fastlane
+# ---------------------------------------------------------------------------
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# ---------------------------------------------------------------------------
+# Signing & provisioning (NEVER commit)
+# ---------------------------------------------------------------------------
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+*.p12
+*.mobileprovision
+*.cer
+*.certSigningRequest
+*.p8
+# Public portal TLS certificate; this is not signing material.
+!**/casero_rem_cu.cer
+
+# ---------------------------------------------------------------------------
+# Secrets & environment
+# ---------------------------------------------------------------------------
+.env
+.env.*
+secrets.properties
+*.secret
+
+# ---------------------------------------------------------------------------
+# OS / editor noise
+# ---------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*~
+
+# Local portal captures: live cookies and real guest data. Never commit.
+.ignore/
