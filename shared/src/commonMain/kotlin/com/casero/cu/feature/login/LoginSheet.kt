@@ -24,7 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +55,6 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun LoginSheet(app: AppState, onDismiss: () -> Unit) {
     val model = remember { LoginViewModel(app) }
-    val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val rememberCredentials by app.settings.rememberCredentials.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -112,7 +110,8 @@ fun LoginSheet(app: AppState, onDismiss: () -> Unit) {
             PrimaryButton(
                 stringResource(Res.string.sign_in_to_the_app_session),
                 onClick = {
-                    scope.launch {
+                    // Even if the sheet is closed meanwhile, a successful sign-in is kept.
+                    app.tasks.launch {
                         if (model.submit()) {
                             app.didSignIn()
                             onDismiss()
