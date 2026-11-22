@@ -96,11 +96,12 @@ object IosPlatform {
 
     /** Face ID, Touch ID or the device passcode. Without a passcode there is no silent sign-in. */
     private object LocalAuthenticationCheck : DeviceOwnerCheck {
-        override suspend fun confirm(reason: String): Boolean {
-            val context = LAContext()
+        override suspend fun confirm(prompt: DeviceCheckPrompt): Boolean {
+            // The cancel button says "Skip": skipping only means no automatic sign-in.
+            val context = LAContext().apply { localizedCancelTitle = prompt.skip }
             if (!context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthentication, null)) return false
             return suspendCancellableCoroutine { continuation ->
-                context.evaluatePolicy(LAPolicyDeviceOwnerAuthentication, reason) { success, _ ->
+                context.evaluatePolicy(LAPolicyDeviceOwnerAuthentication, prompt.reason) { success, _ ->
                     if (continuation.isActive) continuation.resume(success)
                 }
                 continuation.invokeOnCancellation { context.invalidate() }
