@@ -226,7 +226,7 @@ fun SettingsScreen(app: AppState, model: SettingsViewModel, onOpen: (SettingsDes
                 Caption(stringResource(Res.string.stored_only_on_this_device_in_the_ios_keychain))
                 CardDivider()
                 if (app.isSignedIn) {
-                    TextButton(onClick = { scope.launch { app.signOutCompletely() } }) {
+                    TextButton(onClick = { app.tasks.launch { app.signOutCompletely() } }) {
                         Text(stringResource(Res.string.sign_out_of_the_app_session), color = Red)
                     }
                 } else {
@@ -519,7 +519,6 @@ private fun ChannelRows(channels: List<CommunicationChannel>) {
 
 @Composable
 private fun ExportFormSheet(app: AppState, model: SettingsViewModel, onDismiss: () -> Unit) {
-    val scope = rememberCoroutineScope()
     LaunchedEffect(model.exportedFile) {
         model.exportedFile?.let { file ->
             app.platform.files.share(file.path, file.mimeType)
@@ -554,7 +553,7 @@ private fun ExportFormSheet(app: AppState, model: SettingsViewModel, onDismiss: 
         Card(spacing = 8) {
             Caption(cacheSummaryText(model))
             Caption(stringResource(Res.string.built_from_the_guests_already_cached_on_this))
-            PrimaryButton(stringResource(Res.string.create_export), { scope.launch { model.export() } }, loading = model.isExporting)
+            PrimaryButton(stringResource(Res.string.create_export), { app.tasks.launch { model.export() } }, loading = model.isExporting)
             model.noticeMessage?.let { Caption(it.resolve()) }
             model.errorMessage?.let { Text(it.resolve(), style = MaterialTheme.typography.bodySmall, color = Red) }
         }
