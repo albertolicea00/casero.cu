@@ -8,4 +8,11 @@
     <string name="clear_search">Clear search</string>
     <string name="back">Back</string>
     <string name="back_to_top">Back to top</string>
+    <string name="device_check_title">Confirm it is you</string>
+    <string name="device_check_body">Your portal account registers guests in your name. Before the app signs in with your saved password, it asks you to unlock as you unlock this phone: face, fingerprint, PIN, pattern or passcode.</string>
+    <string name="device_check_when">It is asked when the app opens and when the session expires. Without a screen lock on this phone, the app does not sign in by itself.</string>
+    <string name="device_check_private">Your face or fingerprint never leave the phone; the app only learns whether it was you.</string>
+    <string name="continue_text">Continue</string>
+    <string name="not_now">Not now</string>
+    <string name="device_check_failed">Could not confirm it is you, so automatic sign-in stays off. This phone needs a screen lock.</string>
 </resources>

@@ -8,4 +8,11 @@
     <string name="clear_search">Borrar búsqueda</string>
     <string name="back">Atrás</string>
     <string name="back_to_top">Volver arriba</string>
+    <string name="device_check_title">Confirma que eres tú</string>
+    <string name="device_check_body">Tu cuenta del portal registra huéspedes a tu nombre. Antes de entrar con tu contraseña guardada, la app te pide desbloquear como desbloqueas este teléfono: rostro, huella, PIN, patrón o código.</string>
+    <string name="device_check_when">Se pide al abrir la app y cuando la sesión vence. Si el teléfono no tiene bloqueo de pantalla, la app no entra sola.</string>
+    <string name="device_check_private">Tu rostro o tu huella nunca salen del teléfono; la app solo sabe si fuiste tú.</string>
+    <string name="continue_text">Continuar</string>
+    <string name="not_now">Ahora no</string>
+    <string name="device_check_failed">No se pudo confirmar que eres tú, así que el inicio automático sigue desactivado. El teléfono necesita un bloqueo de pantalla.</string>
 </resources>
