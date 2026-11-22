@@ -56,6 +56,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -347,7 +348,8 @@ private fun NavRow(text: String, icon: ImageVector, chevron: Boolean = true, onC
     ) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(12.dp))
-        Text(text, Modifier.weight(1f))
+        // Rows without a chevron open a web page: shown as links, in blue like iOS `Link`.
+        Text(text, Modifier.weight(1f), color = if (chevron) Color.Unspecified else MaterialTheme.colorScheme.primary)
         if (chevron) {
             Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(14.dp))
         }
