@@ -1,6 +1,5 @@
 package com.casero.cu.ui
 
-import androidx.compose.runtime.Composable
 import com.casero.cu.model.PortalDates
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
@@ -15,9 +14,6 @@ import platform.Foundation.NSRelativeDateTimeFormatter
 import platform.Foundation.NSTimeZone
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeZoneWithName
-
-@Composable
-actual fun PlatformBackHandler(enabled: Boolean, onBack: () -> Unit) = Unit
 
 actual fun formatMediumDate(date: LocalDate): String = NSDateFormatter().run {
     dateStyle = NSDateFormatterMediumStyle

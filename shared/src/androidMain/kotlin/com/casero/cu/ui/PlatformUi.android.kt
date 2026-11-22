@@ -1,7 +1,5 @@
 package com.casero.cu.ui
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.runtime.Composable
 import android.text.format.DateUtils
 import com.casero.cu.model.PortalDates
 import java.text.DateFormat
@@ -9,9 +7,6 @@ import java.util.Calendar
 import java.util.TimeZone
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
-
-@Composable
-actual fun PlatformBackHandler(enabled: Boolean, onBack: () -> Unit) = BackHandler(enabled, onBack)
 
 actual fun formatMediumDate(date: LocalDate): String {
     val utc = TimeZone.getTimeZone("UTC")
