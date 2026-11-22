@@ -79,6 +79,8 @@ signing.properties
 .env.*
 secrets.properties
 *.secret
+keys/release.properties
+keys/debug.properties
 
 # ---------------------------------------------------------------------------
 # OS / editor noise
