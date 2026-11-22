@@ -26,8 +26,8 @@
 ## Checklist
 
 - [ ] Code and comments are in English
-- [ ] The project builds for Android and iOS
-- [ ] Shared tests pass
+- [ ] Both apps build (`make build`)
+- [ ] Checks pass (`make check`)
 - [ ] Commits follow Conventional Commits, with no AI/tool attribution
 - [ ] No credentials, tokens, signing material, or real guest data are included
 - [ ] TLS handling changes (if any) are scoped to `casero.rem.cu` only

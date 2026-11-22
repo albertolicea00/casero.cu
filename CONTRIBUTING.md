@@ -61,8 +61,8 @@ add tool or AI attribution trailers.
 
 ## Pull requests
 
-1. Make sure the project builds for Android and iOS.
-2. Run the shared tests.
+1. Make sure both apps build (`make build`).
+2. Run the checks (`make check`).
 3. Fill in the [pull request template](.github/PULL_REQUEST_TEMPLATE.md).
 4. Link any issue the PR closes (`Closes #123`).
 5. Keep PRs focused — one logical change per PR.
