@@ -1,5 +1,6 @@
 package com.casero.cu.android
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,8 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         AndroidPlatform.attach(this)
+        // Recent apps shows the app's name instead of guests' data. Screenshots still work.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) setRecentsScreenshotEnabled(false)
         val platform = AndroidPlatform.get(this)
         setContent { App(platform) }
     }
