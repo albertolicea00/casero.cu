@@ -75,7 +75,7 @@ Necesita JDK 17, el SDK de Android y, para iOS, una Mac con Xcode y XcodeGen
 git clone https://github.com/albertolicea00/casero.cu.git
 cd casero.cu
 make                      # lista todas las tareas
-make run                  # Android (dispositivo o emulador)
+make run android          # Android (dispositivo o emulador)
 make run ios     # simulador de iOS
 make test                 # tests compartidos en la JVM y en el simulador de iOS
 ```

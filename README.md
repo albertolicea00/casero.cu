@@ -72,7 +72,7 @@ You need JDK 17, the Android SDK, and for iOS a Mac with Xcode and XcodeGen
 git clone https://github.com/albertolicea00/casero.cu.git
 cd casero.cu
 make                      # list every task
-make run                  # Android (device or emulator)
+make run android          # Android (device or emulator)
 make run ios     # iOS simulator
 make test                 # shared tests on the JVM and the iOS simulator
 ```

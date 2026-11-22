@@ -72,16 +72,19 @@ Related docs: [ARCHITECTURE.md](ARCHITECTURE.md), [README.md](README.md) /
 
 ```bash
 make                      # list every task
-make run                  # Android app on every connected device (starts the first AVD if none)
-make run DEVICE=<serial>  # Android app on one device (`make devices` lists them)
+make run android          # Android app on every connected device (starts the first AVD if none)
+make run android DEVICE=<serial>  # one Android device (`make devices` lists them)
 make run ios              # iOS app on a simulator (SIMULATOR="iPhone 17 Pro Max")
 make emulator             # open the Android emulator window
-make install              # your physical iPhone and Android phones (`make install ios|android`)
+make install ios          # your physical iPhone (`make install android` for Android phones)
 make test                 # shared tests on the JVM and the iOS simulator
 make test-device          # Android tests on a device or emulator (Keystore, PDF, certificate)
 make check                # tests, Android lint and `git diff --check` (release gate)
 make build                # both debug builds
 ```
+
+`make run` and `make install` always need the platform (`ios` or `android`);
+without it they stop and say so.
 
 Underneath: `./gradlew :shared:testDebugUnitTest :shared:iosSimulatorArm64Test`,
 `./gradlew :androidApp:assembleDebug`, and for iOS `xcodegen generate` in `iosApp/`
