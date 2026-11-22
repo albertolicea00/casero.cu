@@ -387,6 +387,11 @@ name).
 
 Newest first. Each entry: what was learned and how.
 
+- **2026-11-22** — This app verified against the live portal on Android and
+  iOS (physical devices, Cuban network): sign-in with TLS pinning, Guests,
+  profile and channels, silent re-login, adding a companion to an active stay
+  and check-out updates for guest and companion (host, on device). Full guest
+  registration still pending a real guest ([#3](https://github.com/albertolicea00/casero.cu/issues/3)).
 - **2026-11-22** — Profile: `GET /Cuenta/Perfil` renders the account as a
   `td.titulo`/`td.texto` table inside `div.perfil`; password changes go to
   `Gestionar/CambiarCredencialesAjax` (web capture of the page). Profile is read
