@@ -1,5 +1,6 @@
 package com.casero.cu.feature.guests
 
+import com.casero.cu.ui.StatusBarTaps
 import com.casero.cu.resources.back_to_top
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -263,10 +264,23 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
     val groups = if (model.segment == GuestsViewModel.Segment.Active) groupedByDeparture(guests) else groupedByCheckInMonth(guests)
     val knownNationalities = nationalityNamesByCode(model.guests).also { tab.nationalityNamesByCode = it }
 
+    val listState = rememberLazyListState()
+    fun scrollToTop() {
+        scope.launch { listState.animateScrollToItem(0) }
+    }
+    // The iPhone's tap-the-status-bar gesture, while this list is on screen.
+    LaunchedEffect(listState) { StatusBarTaps.taps.collect { scrollToTop() } }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(Res.string.guests)) },
+                // Tapping the title goes back to the top, like the status bar on iOS.
+                title = {
+                    Text(
+                        stringResource(Res.string.guests),
+                        Modifier.clickable(interactionSource = null, indication = null, onClick = ::scrollToTop),
+                    )
+                },
                 actions = {
                     IconButton(onClick = { isInfoPresented = true }) {
                         Icon(Icons.Outlined.Info, contentDescription = stringResource(Res.string.guests_information))
@@ -287,7 +301,6 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
             onRefresh = { if (app.isSignedIn) app.tasks.launch { model.reload() } },
             modifier = Modifier.fillMaxSize().padding(padding),
         ) {
-            val listState = rememberLazyListState()
             // Lazy item index of each guest, past the controls and section headers.
             val itemIndex = remember(groups) {
                 var index = 1
@@ -377,7 +390,7 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
                 enter = fadeIn() + slideInVertically { it },
                 exit = fadeOut() + slideOutVertically { it },
             ) {
-                BackToTopButton { scope.launch { listState.animateScrollToItem(0) } }
+                BackToTopButton(::scrollToTop)
             }
         }
     }
