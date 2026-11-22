@@ -16,13 +16,13 @@ App multiplataforma (iOS + Android) para que los arrendadores de casas particula
 
 ## 🚧 Estado
 
-En desarrollo inicial. Este repositorio sustituye a los clientes nativos
+Port completo, todavía sin publicar. Este repositorio sustituye a los clientes nativos
 [casero.cu-ios](https://github.com/albertolicea00/casero.cu-ios) (Swift, completo)
 y [casero.cu-apk](https://github.com/albertolicea00/casero.cu-apk) (Kotlin, parcial)
 con un único código en Kotlin Multiplatform. La app de iOS es la referencia: el
 port debe igualar sus funciones y pasar sus tests antes de la primera versión.
 
-## ✨ Funciones (objetivo, tomadas de la app de iOS)
+## ✨ Funciones
 
 - Inicio de sesión en el portal con certificate pinning acotado, cookies y tokens
   antifalsificación.
@@ -68,8 +68,21 @@ Vea [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 🚀 Primeros Pasos
 
-El proyecto Gradle todavía no está creado. Hará falta una Mac con Xcode (para iOS) y
-Android Studio o IntelliJ IDEA con el plugin de Kotlin Multiplatform.
+Necesita JDK 17, el SDK de Android y, para iOS, una Mac con Xcode y XcodeGen
+(`brew install xcodegen`).
+
+```bash
+git clone https://github.com/albertolicea00/casero.cu.git
+cd casero.cu
+make                      # lista todas las tareas
+make run                  # Android (dispositivo o emulador)
+make run PLATFORM=ios     # simulador de iOS
+make test                 # tests compartidos en la JVM y en el simulador de iOS
+```
+
+Android Studio o IntelliJ IDEA con el plugin de Kotlin Multiplatform abren el
+proyecto directamente. Para Xcode, ejecute `make ios-project` y abra
+`iosApp/CaseroCu.xcodeproj`.
 
 > 🔐 El material de firma (`*.jks`, `*.keystore`, `*.p12`, `*.mobileprovision`, `*.p8`) nunca se sube al repositorio.
 

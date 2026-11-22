@@ -16,13 +16,13 @@ Cross-platform app (iOS + Android) for Cuban lodging hosts to submit guest repor
 
 ## 🚧 Status
 
-Early work. This repository replaces the native clients
+Feature-complete port, not yet released. This repository replaces the native clients
 [casero.cu-ios](https://github.com/albertolicea00/casero.cu-ios) (Swift, feature-complete)
 and [casero.cu-apk](https://github.com/albertolicea00/casero.cu-apk) (Kotlin, partial)
 with a single Kotlin Multiplatform codebase. The iOS app is the reference: the port
 must match its features and pass its tests before the first release.
 
-## ✨ Features (target, from the iOS app)
+## ✨ Features
 
 - Portal sign-in with scoped certificate pinning, cookies, and anti-forgery tokens.
 - Guest lookups by passport, name, CI and temporary CI; batch registration with a
@@ -65,8 +65,21 @@ integration it allows. See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 🚀 Getting Started
 
-The Gradle project is not scaffolded yet. You will need a Mac with Xcode (for
-iOS) and Android Studio or IntelliJ IDEA with the Kotlin Multiplatform plugin.
+You need JDK 17, the Android SDK, and for iOS a Mac with Xcode and XcodeGen
+(`brew install xcodegen`).
+
+```bash
+git clone https://github.com/albertolicea00/casero.cu.git
+cd casero.cu
+make                      # list every task
+make run                  # Android (device or emulator)
+make run PLATFORM=ios     # iOS simulator
+make test                 # shared tests on the JVM and the iOS simulator
+```
+
+Android Studio or IntelliJ IDEA with the Kotlin Multiplatform plugin open the
+project directly. For Xcode, run `make ios-project` and open
+`iosApp/CaseroCu.xcodeproj`.
 
 > 🔐 Signing material (`*.jks`, `*.keystore`, `*.p12`, `*.mobileprovision`, `*.p8`) is never committed.
 
