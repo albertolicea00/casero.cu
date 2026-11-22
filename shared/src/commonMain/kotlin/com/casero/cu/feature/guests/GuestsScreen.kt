@@ -200,36 +200,40 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
     var isInfoPresented by remember { mutableStateOf(false) }
     var isDateFilterPresented by remember { mutableStateOf(false) }
 
+    // Loads run in app.tasks, not in these effects, so leaving the tab or opening a
+    // guest does not cancel them; the list is ready when the host comes back.
     LaunchedEffect(Unit) {
         if (!tab.loaded) {
             tab.loaded = true
             tab.wasSignedIn = app.isSignedIn
-            model.loadFromCache()
-            if (app.isSignedIn) model.reload()
+            app.tasks.launch {
+                model.loadFromCache()
+                if (app.isSignedIn) model.reload()
+            }
         }
     }
     LaunchedEffect(model.guests.size) { app.hasCachedGuests = model.guests.isNotEmpty() }
     LaunchedEffect(cacheTTL) {
         if (cacheTTL != tab.seenTTL) {
             tab.seenTTL = cacheTTL
-            model.loadFromCache()
+            app.tasks.launch { model.loadFromCache() }
         }
     }
     LaunchedEffect(defaultDays) {
         if (defaultDays != tab.seenDefaultDays) {
             tab.seenDefaultDays = defaultDays
             model.applyDefaultRange()
-            if (app.isSignedIn) model.reload()
+            if (app.isSignedIn) app.tasks.launch { model.reload() }
         }
     }
     LaunchedEffect(app.registrationsVersion) {
         if (app.registrationsVersion != tab.seenVersion) {
             tab.seenVersion = app.registrationsVersion
-            if (app.isSignedIn) model.reload()
+            if (app.isSignedIn) app.tasks.launch { model.reload() }
         }
     }
     LaunchedEffect(app.isSignedIn) {
-        if (app.isSignedIn && !tab.wasSignedIn) model.reload()
+        if (app.isSignedIn && !tab.wasSignedIn) app.tasks.launch { model.reload() }
         tab.wasSignedIn = app.isSignedIn
     }
     LaunchedEffect(model.isSessionExpired) {
@@ -251,7 +255,7 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
                     IconButton(onClick = { isInfoPresented = true }) {
                         Icon(Icons.Outlined.Info, contentDescription = stringResource(Res.string.guests_information))
                     }
-                    IconButton(onClick = { scope.launch { model.reload() } }, enabled = !model.isLoading && app.isSignedIn) {
+                    IconButton(onClick = { app.tasks.launch { model.reload() } }, enabled = !model.isLoading && app.isSignedIn) {
                         if (model.isLoading) {
                             CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                         } else {
@@ -264,7 +268,7 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = model.isLoading,
-            onRefresh = { if (app.isSignedIn) scope.launch { model.reload() } },
+            onRefresh = { if (app.isSignedIn) app.tasks.launch { model.reload() } },
             modifier = Modifier.fillMaxSize().padding(padding),
         ) {
             val listState = rememberLazyListState()
@@ -313,7 +317,7 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
                 if (guests.isEmpty()) {
                     item(key = "empty") {
                         Box(Modifier.fillMaxWidth().heightIn(min = 320.dp), contentAlignment = Alignment.Center) {
-                            EmptyState(model) { scope.launch { model.reload() } }
+                            EmptyState(model) { app.tasks.launch { model.reload() } }
                         }
                     }
                 } else {
@@ -374,7 +378,7 @@ fun GuestsScreen(app: AppState, tab: GuestsTab, onOpenGuest: (Guest) -> Unit) {
                 model.from = from
                 model.to = to
                 isDateFilterPresented = false
-                scope.launch { model.reload() }
+                app.tasks.launch { model.reload() }
             },
         )
     }
