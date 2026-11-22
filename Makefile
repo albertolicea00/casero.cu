@@ -1,14 +1,17 @@
 # CASERO — common tasks. Run `make` for the list.
 #
 #   make run                  Android app on every connected device/emulator (default)
-#   make run ios              iOS app on a simulator (same as PLATFORM=ios)
-#   make run DEVICE=<serial>  Android app on one device (serials: `adb devices`)
-#   make install              your physical iPhone and Android phones
-#   make install ios          only the iPhone (team from keys/ios.properties or TEAM=<id>)
+#   make run android          Android app on every connected device/emulator
+#   make run ios              iOS app on a simulator
+#   make run android DEVICE=<serial>  one Android device (serials: `make devices`)
+#   make install android      your physical Android phones
+#   make install ios          your iPhone (team from keys/ios.properties or TEAM=<id>)
 #   make test                 shared tests on Android (JVM) and the iOS simulator
 
-# `make run ios`, `make install android`… pick the platform like PLATFORM= does.
-PLATFORM ?= $(if $(filter ios,$(MAKECMDGOALS)),ios,android)
+# `make run ios`, `make install android`… name the platform (or PLATFORM=ios). There
+# is no default: running or installing always says where.
+PLATFORM ?= $(firstword $(filter ios android,$(MAKECMDGOALS)))
+NEED_PLATFORM = $(if $(filter ios android,$(PLATFORM)),,. scripts/lib.sh && fail "Say which platform: make $(1) ios  or  make $(1) android")
 APP_ID := com.casero.cu
 ACTIVITY := com.casero.cu.android.MainActivity
 GRADLE := ./gradlew
@@ -35,15 +38,17 @@ IOS_APP := $(IOS_BUILD)/Build/Products/Debug-iphonesimulator/CaseroCu.app
 help: ## List the available tasks
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-run: ## Run the app: `make run`, `make run ios`, `make run DEVICE=<serial>`
+run: ## Run the app: `make run ios` or `make run android` (DEVICE=<serial>)
+	@$(call NEED_PLATFORM,run)
 	@$(MAKE) --no-print-directory $(PLATFORM)-run
 
-install: ## Install on your physical devices: `make install`, `make install ios|android`
-	@$(if $(filter ios android,$(MAKECMDGOALS)),$(MAKE) --no-print-directory $(filter ios android,$(MAKECMDGOALS))-device-install,$(MAKE) --no-print-directory android-device-install ios-device-install)
+install: ## Install on your physical phone: `make install ios` or `make install android`
+	@$(call NEED_PLATFORM,install)
+	@$(MAKE) --no-print-directory $(PLATFORM)-device-install
 
-# Platform words after `run` / `install`; alone they run that platform.
+# Platform words after `run` / `install`; alone they do nothing.
 ios android:
-	@$(if $(filter run install,$(MAKECMDGOALS)),:,$(MAKE) --no-print-directory $@-run)
+	@:
 
 build: android-build ios-build ## Build both apps (debug)
 
