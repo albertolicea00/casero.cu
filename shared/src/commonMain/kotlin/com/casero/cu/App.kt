@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -179,7 +180,8 @@ private fun MainScreen(app: AppState) {
                     }
                 }
             }
-            Box(Modifier.weight(1f)) {
+            // The banners above already pad for the status bar; screens must not pad again.
+            Box(Modifier.weight(1f).consumeWindowInsets(WindowInsets.statusBars)) {
                 saveableState.SaveableStateProvider("${selection.name}-${stack.size}") {
                     when (val route = stack.lastOrNull()) {
                         is Route.GuestDetail -> GuestDetailScreen(
