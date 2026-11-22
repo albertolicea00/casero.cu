@@ -89,6 +89,7 @@ import com.casero.cu.resources.csv_excel
 import com.casero.cu.resources.cubatramite_source
 import com.casero.cu.resources.date_range
 import com.casero.cu.resources.default_date_range
+import com.casero.cu.resources.device_check_failed
 import com.casero.cu.resources.disclaimer
 import com.casero.cu.resources.done
 import com.casero.cu.resources.enable_remember_credentials_at_sign_in_to
@@ -207,6 +208,7 @@ fun SettingsScreen(app: AppState, model: SettingsViewModel, onOpen: (SettingsDes
     val saveImages by settings.saveImages.collectAsState()
     val defaultDays by settings.defaultGuestRangeDays.collectAsState()
     var isExportFormPresented by remember { mutableStateOf(false) }
+    var autoReauthFailed by remember { mutableStateOf(false) }
     var isProfilePresented by remember { mutableStateOf(false) }
     var isChannelsPresented by remember { mutableStateOf(false) }
 
@@ -240,8 +242,21 @@ fun SettingsScreen(app: AppState, model: SettingsViewModel, onOpen: (SettingsDes
                 if (!rememberCredentials) Caption(stringResource(Res.string.enable_remember_credentials_at_sign_in_to))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f)) {
-                        ToggleRow(stringResource(Res.string.auto_re_authenticate_on_expiry), autoReauth && rememberCredentials, { if (rememberCredentials) settings.setAutoReauth(it) })
+                        ToggleRow(stringResource(Res.string.auto_re_authenticate_on_expiry), autoReauth && rememberCredentials, { on ->
+                            when {
+                                !rememberCredentials -> Unit
+                                // Turning it on proves the phone can be unlocked first.
+                                on -> app.tasks.launch { autoReauthFailed = !app.enableAutoReauth() }
+                                else -> {
+                                    autoReauthFailed = false
+                                    settings.setAutoReauth(false)
+                                }
+                            }
+                        })
                     }
+                }
+                if (autoReauthFailed) {
+                    Text(stringResource(Res.string.device_check_failed), style = MaterialTheme.typography.bodySmall, color = Red)
                 }
                 Caption(stringResource(Res.string.signs_in_with_your_saved_credentials_when_the))
             }
