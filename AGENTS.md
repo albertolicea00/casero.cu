@@ -444,10 +444,13 @@ casero.cu-ios issue #2, now closed):
 
 Known issues:
 
-- 4 tests in `SMSReportingTests` fail: they expect an SMS confirmation flow the
-  model no longer has. Predates the registration work.
-- `swift-format lint --strict` reports formatting errors (mostly
-  `GuestsView.swift`); run `swift-format format` before a release.
+- The iOS suite's SMS tests that expected an automatic switch to the
+  confirmation step were not ported: the model has not done that since before
+  the port (they failed on iOS too).
+- Android does not report whether the user sent the SMS, so the result there is
+  always "unknown".
+- A guest cache written by the native iOS app is not read (new file names); the
+  next reload rebuilds it.
 - `GuestPhotoService` asks for a Cuban's photo through the CI endpoint whenever
   the nationality is CUBA, which is wrong for Cubans found by passport (their
   identifier is a passport, not a CI). Inferred from code, not reproduced.
