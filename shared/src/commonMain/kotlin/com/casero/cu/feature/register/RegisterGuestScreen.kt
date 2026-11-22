@@ -53,7 +53,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -148,7 +147,6 @@ class RegisterTab(app: AppState) {
 @Composable
 fun RegisterGuestScreen(app: AppState, tab: RegisterTab) {
     val model = tab.model
-    val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     var isInfoPresented by remember { mutableStateOf(false) }
     val queuePhotos = tab.queuePhotos
@@ -171,7 +169,7 @@ fun RegisterGuestScreen(app: AppState, tab: RegisterTab) {
     }
 
     fun savePdf(record: ExportService.RegistrationRecord) {
-        scope.launch {
+        app.tasks.launch {
             val data = app.exports.registrationPdf(record, photoBytes.toMap())
             val file = app.platform.temporaryDirectory / ExportService.registrationFileName()
             app.platform.fileSystem.write(file) { write(data) }
@@ -232,7 +230,7 @@ fun RegisterGuestScreen(app: AppState, tab: RegisterTab) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 PrimaryButton(
                     stringResource(Res.string.look_up),
-                    onClick = { scope.launch { model.lookUp() } },
+                    onClick = { app.tasks.launch { model.lookUp() } },
                     enabled = model.canLookUp,
                     loading = model.isLookingUp,
                 )
@@ -331,7 +329,8 @@ fun RegisterGuestScreen(app: AppState, tab: RegisterTab) {
             onCancel = { isConfirmingSubmit = false },
             onConfirm = {
                 isConfirmingSubmit = false
-                scope.launch { if (model.submit()) app.guestsDidChange() }
+                // Not tied to this screen: leaving the tab must not cut off a sent registration.
+                app.tasks.launch { if (model.submit()) app.guestsDidChange() }
             },
             onSavePdf = { savePdf(ExportService.RegistrationRecord.Prepared(model.queue.toList())) },
         )
