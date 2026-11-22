@@ -19,6 +19,7 @@ import com.casero.cu.resources.sign_in_to_the_app_session_with_your_saved
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -49,7 +50,12 @@ class AppState(val platform: Platform) {
     val exports = ExportService(platform.pdf, ResourceExportLabels)
     val secureStore: SecureStore get() = platform.secureStore
 
-    private val scope = CoroutineScope(SupervisorJob())
+    /**
+     * Runs portal work started by the user (look up, register, reload, check-out…)
+     * so it finishes even when they switch tab or leave the screen, like the iOS
+     * app's `Task {}`. A registration cut off midway would lose its answer.
+     */
+    val tasks = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var recovery: CompletableDeferred<Boolean>? = null
     private var recoveryJob: Job? = null
 
@@ -65,7 +71,7 @@ class AppState(val platform: Platform) {
         val result = CompletableDeferred<Boolean>()
         recovery = result
         // Concurrent expiries share one recovery, so the user sees one prompt.
-        recoveryJob = scope.launch {
+        recoveryJob = tasks.launch {
             result.complete(
                 try {
                     confirmDeviceOwner() && run {
