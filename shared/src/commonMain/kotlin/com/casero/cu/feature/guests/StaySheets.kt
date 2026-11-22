@@ -21,7 +21,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.casero.cu.ui.CaseroSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -159,7 +159,7 @@ fun UpdateCheckOutSheet(
         }
     }
 
-    ModalBottomSheet(
+    CaseroSheet(
         onDismissRequest = { if (!isSubmitting) onDismiss() },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { !isSubmitting }),
     ) {
@@ -376,7 +376,7 @@ fun AddCompanionSheet(app: AppState, guest: Guest, existingIDs: Set<String>, onD
         }
     }
 
-    ModalBottomSheet(
+    CaseroSheet(
         onDismissRequest = { if (!isSubmitting) onDismiss() },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { !isSubmitting }),
     ) {

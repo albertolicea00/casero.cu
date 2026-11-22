@@ -38,7 +38,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.casero.cu.ui.CaseroSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -502,7 +502,7 @@ private fun SubmitSummarySheet(
     onConfirm: () -> Unit,
     onSavePdf: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onCancel, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    CaseroSheet(onDismissRequest = onCancel, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = onCancel) { Text(stringResource(Res.string.cancel)) }
@@ -545,7 +545,7 @@ private fun LookupResultSheet(
 ) {
     val photos = remember { mutableStateMapOf<String, ByteArray?>() }
     val hasSeveral = model.candidates.size > 1
-    ModalBottomSheet(onDismissRequest = model::dismissResult, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    CaseroSheet(onDismissRequest = model::dismissResult, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
