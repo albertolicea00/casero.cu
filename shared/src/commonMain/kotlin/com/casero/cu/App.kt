@@ -1,5 +1,10 @@
 package com.casero.cu
 
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.backhandler.PredictiveBackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -78,7 +83,6 @@ import com.casero.cu.resources.sms
 import com.casero.cu.resources.use_your_portal_account_to_look_up_and_report
 import com.casero.cu.ui.CaseroTheme
 import com.casero.cu.ui.Orange
-import com.casero.cu.ui.PlatformBackHandler
 import com.casero.cu.ui.Red
 import com.casero.cu.ui.Yellow
 import org.jetbrains.compose.resources.StringResource
@@ -108,6 +112,7 @@ fun App(platform: Platform) {
 }
 
 /** Registration requires login; local settings and retained guests work offline. */
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 private fun MainScreen(app: AppState) {
     var selection by remember { mutableStateOf(Tab.Sms) }
@@ -134,7 +139,17 @@ private fun MainScreen(app: AppState) {
     }
 
     val stack = stacks.getValue(selection)
-    PlatformBackHandler(enabled = stack.isNotEmpty()) { stack.removeAt(stack.lastIndex) }
+    // Back pops the tab's stack: the edge swipe on iOS, the back gesture on Android. The
+    // screen follows the finger and the previous one shows underneath, like iOS.
+    var backProgress by remember { mutableFloatStateOf(0f) }
+    PredictiveBackHandler(enabled = stack.isNotEmpty()) { events ->
+        try {
+            events.collect { backProgress = it.progress }
+            stack.removeAt(stack.lastIndex)
+        } finally {
+            backProgress = 0f
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -157,44 +172,63 @@ private fun MainScreen(app: AppState) {
     ) { padding ->
         // The tab bar already pads for the system bars; screens must not pad again.
         Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
-            Box(Modifier.weight(1f)) {
-                saveableState.SaveableStateProvider("${selection.name}-${stack.size}") {
-                    when (val route = stack.lastOrNull()) {
-                        is Route.GuestDetail -> GuestDetailScreen(
-                            app = app,
-                            guest = route.guest,
-                            onBack = { stack.removeAt(stack.lastIndex) },
-                            nationalityNamesByCode = guestsTab.nationalityNamesByCode,
-                            onCompanionsLoaded = { count -> guestsTab.companionCounts[route.guest.id] = count },
+            /** The screen for [route] in the current tab; `null` is the tab's root. */
+            val screen: @Composable (Route?) -> Unit = { route ->
+                when (route) {
+                    is Route.GuestDetail -> GuestDetailScreen(
+                        app = app,
+                        guest = route.guest,
+                        onBack = { stack.removeAt(stack.lastIndex) },
+                        nationalityNamesByCode = guestsTab.nationalityNamesByCode,
+                        onCompanionsLoaded = { count -> guestsTab.companionCounts[route.guest.id] = count },
+                    )
+                    is Route.SettingsPage -> when (route.destination) {
+                        SettingsDestination.UserManual -> UserManualScreen { stack.removeAt(stack.lastIndex) }
+                        SettingsDestination.PortalHelp -> PortalHelpScreen { stack.removeAt(stack.lastIndex) }
+                        SettingsDestination.CubatramiteGuide -> CubatramiteGuideScreen { stack.removeAt(stack.lastIndex) }
+                    }
+                    null -> when (selection) {
+                        Tab.Sms -> SmsReportScreen(
+                            model = smsModel,
+                            messages = app.platform.messages,
+                            onOpenSettings = { select(Tab.Settings) },
+                            onOpenCubatramiteGuide = {
+                                select(Tab.Settings)
+                                stacks.getValue(Tab.Settings).apply {
+                                    clear()
+                                    add(Route.SettingsPage(SettingsDestination.CubatramiteGuide))
+                                }
+                            },
                         )
-                        is Route.SettingsPage -> when (route.destination) {
-                            SettingsDestination.UserManual -> UserManualScreen { stack.removeAt(stack.lastIndex) }
-                            SettingsDestination.PortalHelp -> PortalHelpScreen { stack.removeAt(stack.lastIndex) }
-                            SettingsDestination.CubatramiteGuide -> CubatramiteGuideScreen { stack.removeAt(stack.lastIndex) }
-                        }
-                        null -> when (selection) {
-                            Tab.Sms -> SmsReportScreen(
-                                model = smsModel,
-                                messages = app.platform.messages,
-                                onOpenSettings = { select(Tab.Settings) },
-                                onOpenCubatramiteGuide = {
-                                    select(Tab.Settings)
-                                    stacks.getValue(Tab.Settings).apply {
-                                        clear()
-                                        add(Route.SettingsPage(SettingsDestination.CubatramiteGuide))
-                                    }
-                                },
-                            )
-                            Tab.Register -> AuthGate(app, onSignIn = { isLoginPresented = true }) { RegisterGuestScreen(app, registerTab) }
-                            Tab.Guests -> GuestsScreen(app, guestsTab) { guest -> stack.add(Route.GuestDetail(guest)) }
-                            Tab.Settings -> SettingsScreen(
-                                app = app,
-                                model = settingsModel,
-                                onOpen = { stack.add(Route.SettingsPage(it)) },
-                                onSignIn = { isLoginPresented = true },
-                            )
+                        Tab.Register -> AuthGate(app, onSignIn = { isLoginPresented = true }) { RegisterGuestScreen(app, registerTab) }
+                        Tab.Guests -> GuestsScreen(app, guestsTab) { guest -> stack.add(Route.GuestDetail(guest)) }
+                        Tab.Settings -> SettingsScreen(
+                            app = app,
+                            model = settingsModel,
+                            onOpen = { stack.add(Route.SettingsPage(it)) },
+                            onSignIn = { isLoginPresented = true },
+                        )
+                    }
+                }
+            }
+            BoxWithConstraints(Modifier.weight(1f)) {
+                val width = constraints.maxWidth.toFloat()
+                val progress = backProgress
+                if (progress > 0f && stack.isNotEmpty()) {
+                    Box(Modifier.fillMaxSize().graphicsLayer { translationX = -(1f - progress) * width * 0.3f }) {
+                        saveableState.SaveableStateProvider("${selection.name}-${stack.size - 1}") {
+                            screen(stack.getOrNull(stack.size - 2))
                         }
                     }
+                }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { translationX = progress * width }
+                        .shadow(if (progress > 0f) 16.dp else 0.dp)
+                        .background(MaterialTheme.colorScheme.background),
+                ) {
+                    saveableState.SaveableStateProvider("${selection.name}-${stack.size}") { screen(stack.lastOrNull()) }
                 }
                 if (app.isSigningOut) {
                     // Like `.disabled` on iOS: nothing reacts while signing out.
