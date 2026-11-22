@@ -62,6 +62,7 @@ import com.casero.cu.feature.guests.GuestsTab
 import com.casero.cu.feature.help.CubatramiteGuideScreen
 import com.casero.cu.feature.help.PortalHelpScreen
 import com.casero.cu.feature.help.UserManualScreen
+import com.casero.cu.feature.login.DeviceCheckSheet
 import com.casero.cu.feature.login.LoginSheet
 import com.casero.cu.feature.register.RegisterGuestScreen
 import com.casero.cu.feature.register.RegisterTab
@@ -272,6 +273,7 @@ private fun MainScreen(app: AppState) {
     }
 
     if (isLoginPresented) LoginSheet(app) { isLoginPresented = false }
+    if (app.deviceCheckIntro != null) DeviceCheckSheet(app::answerDeviceCheckIntro)
 }
 
 /** Keeps registration locked until the login sheet succeeds; SMS remains available without a portal account. */

@@ -27,6 +27,10 @@ import org.jetbrains.compose.resources.getString
 
 /** Process-wide state: the portal client, session status, and shared services. */
 class AppState(val platform: Platform) {
+    private companion object {
+        const val DEVICE_CHECK_EXPLAINED = "settings.deviceCheckExplained"
+    }
+
     var isSignedIn by mutableStateOf(false)
     var hasCachedGuests by mutableStateOf(false)
     var isSigningOut by mutableStateOf(false)
@@ -100,7 +104,43 @@ class AppState(val platform: Platform) {
      * Without a device lock there is no silent sign-in. See SECURITY.md.
      */
     private suspend fun confirmDeviceOwner(): Boolean =
-        platform.deviceOwner.confirm(getString(Res.string.sign_in_to_the_app_session_with_your_saved))
+        explainDeviceCheckOnce() &&
+            platform.deviceOwner.confirm(getString(Res.string.sign_in_to_the_app_session_with_your_saved))
+
+    /**
+     * Pending answer of the one-time explanation shown before the first device check;
+     * `App` shows the sheet while it is set.
+     */
+    var deviceCheckIntro by mutableStateOf<CompletableDeferred<Boolean>?>(null)
+        private set
+
+    /**
+     * Explains why the app asks for face, fingerprint or the screen lock before the
+     * system prompt appears for the first time. Returns `false` if the host declines.
+     */
+    private suspend fun explainDeviceCheckOnce(): Boolean {
+        if (platform.preferences.getBoolean(DEVICE_CHECK_EXPLAINED) == true) return true
+        val answer = CompletableDeferred<Boolean>()
+        deviceCheckIntro = answer
+        val accepted = try {
+            answer.await()
+        } finally {
+            deviceCheckIntro = null
+        }
+        if (accepted) platform.preferences.putBoolean(DEVICE_CHECK_EXPLAINED, true)
+        return accepted
+    }
+
+    fun answerDeviceCheckIntro(accepted: Boolean) {
+        deviceCheckIntro?.complete(accepted)
+    }
+
+    /** Turns on automatic sign-in only after the owner proves they can unlock this phone. */
+    suspend fun enableAutoReauth(): Boolean {
+        if (!confirmDeviceOwner()) return false
+        settings.setAutoReauth(true)
+        return true
+    }
 
     suspend fun restoreLocalData() {
         val snapshot = guestCache.load()
