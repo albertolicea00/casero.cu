@@ -576,7 +576,7 @@ private fun GuestScrubber(
     val index = if (scrubbing) selected else visible
     val scrollLabel = stringResource(Res.string.scroll_by_date)
     BoxWithConstraints(
-        modifier.fillMaxHeight().width(44.dp).padding(end = 8.dp, top = 8.dp, bottom = 8.dp)
+        modifier.fillMaxHeight().width(44.dp).padding(end = 2.dp, top = 8.dp, bottom = 8.dp)
             .semantics { contentDescription = scrollLabel },
     ) {
         val height = constraints.maxHeight.toFloat()
@@ -605,11 +605,11 @@ private fun GuestScrubber(
             },
         ) {
             Box(
-                Modifier.align(Alignment.TopEnd).padding(end = 12.dp, top = 18.dp, bottom = 18.dp).width(3.dp).fillMaxHeight()
+                Modifier.align(Alignment.TopEnd).padding(end = 6.dp, top = 18.dp, bottom = 18.dp).width(3.dp).fillMaxHeight()
                     .background(MaterialTheme.colorScheme.outlineVariant, CircleShape),
             )
             Box(
-                Modifier.align(Alignment.TopEnd).offset { IntOffset(0, position.roundToInt()) }.padding(end = 10.dp)
+                Modifier.align(Alignment.TopEnd).offset { IntOffset(0, position.roundToInt()) }.padding(end = 4.dp)
                     .size(width = 7.dp, height = 36.dp).background(MaterialTheme.colorScheme.onSurfaceVariant, CircleShape),
             )
         }
