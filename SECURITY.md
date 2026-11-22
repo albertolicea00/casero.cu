@@ -43,6 +43,11 @@ How the credentials are protected on both platforms (details in
   instead.
 - **Two triggers, same gate:** at launch and when a request comes back as
   expired. Concurrent expiries share one recovery, so the user sees one prompt.
+- **Explained before the first prompt.** A one-time sheet says why the app asks
+  for face, fingerprint or the screen lock; turning on "Auto re-authenticate"
+  requires passing the check first.
+- **Content hidden when inactive.** iOS covers the app while it is not active (app
+  switcher, Control Center, the Face ID prompt); Android 13+ hides it in recent apps.
 - **Sign out deletes them,** so an explicit sign-out is never undone by the next
   launch.
 - Credentials are saved only at a successful sign-in. Turning on "Remember
