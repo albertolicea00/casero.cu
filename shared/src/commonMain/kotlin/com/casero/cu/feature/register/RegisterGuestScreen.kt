@@ -66,6 +66,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.casero.cu.app.AppState
 import com.casero.cu.export.ExportService
+import com.casero.cu.model.CubanId
 import com.casero.cu.model.Guest
 import com.casero.cu.model.GuestRegistration
 import com.casero.cu.model.PersonaValidation
@@ -365,15 +366,17 @@ private fun LookupInput(model: RegisterGuestViewModel) {
                 CardDivider()
                 CardTextField(model.lastName2, { model.lastName2 = it }, stringResource(Res.string.second_surname), capitalization = KeyboardCapitalization.Characters)
             } else {
+                val isCi = model.lookupKind == RegisterGuestViewModel.LookupKind.CubanCompanion
                 CardTextField(
                     model.identificador,
-                    { model.identificador = it },
+                    { model.identificador = if (isCi) CubanId.sanitize(it) else it },
                     stringResource(model.lookupKind.fieldLabel),
                     keyboardType = if (model.lookupKind == RegisterGuestViewModel.LookupKind.CubanCompanion) KeyboardType.Number else KeyboardType.Text,
                     capitalization = KeyboardCapitalization.Characters,
                 )
             }
         }
+        model.identityHint?.let { Hint(it.resolve(), icon = Icons.Default.Warning, color = Orange) }
         Hint(stringResource(model.lookupKind.help))
         if (model.lookupKind == RegisterGuestViewModel.LookupKind.ForeignGuestByName) {
             // The portal matches on the first given name only; a second name finds nobody.

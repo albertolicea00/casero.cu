@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.casero.cu.model.CubanId
 import com.casero.cu.model.Guest
 import com.casero.cu.model.GuestRegistration
 import com.casero.cu.model.PersonaValidation
@@ -16,6 +17,7 @@ import com.casero.cu.resources.Res
 import com.casero.cu.resources.add_the_main_guest_to_the_queue_before
 import com.casero.cu.resources.carne_de_identidad
 import com.casero.cu.resources.check_in_can_be_at_most_7_days_ago
+import com.casero.cu.resources.ci_has_11_digits
 import com.casero.cu.resources.check_out_must_be_on_or_after_check_in
 import com.casero.cu.resources.first_name
 import com.casero.cu.resources.id_card
@@ -116,12 +118,20 @@ class RegisterGuestViewModel(
 
     val canLookUp: Boolean
         get() {
-            val hasQuery = if (lookupKind == LookupKind.ForeignGuestByName) {
-                firstName.isNotBlank() && lastName1.isNotBlank()
-            } else {
-                lookupQuery.isNotEmpty()
+            val hasQuery = when (lookupKind) {
+                LookupKind.ForeignGuestByName -> firstName.isNotBlank() && lastName1.isNotBlank()
+                LookupKind.CubanCompanion -> CubanId.isValid(lookupQuery)
+                else -> lookupQuery.isNotEmpty()
             }
             return hasQuery && !isLookingUp && !isSubmitting
+        }
+
+    /** Shown under a CI that is typed but not yet 11 digits. */
+    val identityHint: UiText?
+        get() = if (lookupKind == LookupKind.CubanCompanion && lookupQuery.isNotEmpty() && !CubanId.isValid(lookupQuery)) {
+            UiText.of(Res.string.ci_has_11_digits)
+        } else {
+            null
         }
 
     val earliestCheckIn: LocalDate get() = earliestCheckIn(now())
