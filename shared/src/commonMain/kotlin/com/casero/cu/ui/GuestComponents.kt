@@ -342,3 +342,40 @@ fun SectionInfoSheet(title: String, summary: String, links: List<PortalLink>, on
         }
     }
 }
+
+/** The flag of [nationality]; tapping it shows the country name for a moment, like the iOS app. */
+@Composable
+fun NationalityFlagWithName(nationality: String?, style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.titleMedium) {
+    val name = nationality?.trim()?.takeIf { it.isNotEmpty() } ?: return
+    val flag = NationalityFlag.emoji(name) ?: return
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(visible) {
+        if (visible) {
+            delay(1_800)
+            visible = false
+        }
+    }
+    Box {
+        Text(flag, Modifier.clickable { visible = !visible }, style = style)
+        if (visible) {
+            androidx.compose.ui.window.Popup(
+                alignment = Alignment.TopEnd,
+                offset = androidx.compose.ui.unit.IntOffset(0, with(androidx.compose.ui.platform.LocalDensity.current) { 30.dp.roundToPx() }),
+                onDismissRequest = { visible = false },
+            ) {
+                androidx.compose.material3.Surface(
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    shadowElevation = 6.dp,
+                ) {
+                    Text(
+                        name,
+                        Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
+    }
+}
