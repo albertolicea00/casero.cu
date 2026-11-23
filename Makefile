@@ -33,7 +33,7 @@ IOS_APP := $(IOS_BUILD)/Build/Products/Debug-iphonesimulator/CaseroCu.app
 .DEFAULT_GOAL := help
 .PHONY: help run install build test test-device check clean ios android \
 	android-build android-install android-run android-release android-release-apk emulator android-device devices \
-	android-device-install ios-project ios-build ios-run ios-device-install simulator
+	android-device-install ios-project ios-build ios-run ios-device-install ios-ipa simulator
 
 help: ## List the available tasks
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -129,6 +129,9 @@ ios-build: $(IOS_PROJECT) ## Build the iOS app for the simulator
 
 ios-device-install: ## Install on the iPhone connected to this Mac
 	@scripts/ios-device.sh
+
+ios-ipa: ## Archive and export build/ipa/casero-v<version>-<build>-release.ipa (IPA_METHOD=…)
+	@scripts/ios-ipa.sh
 
 simulator: ## Boot the iOS simulator (SIMULATOR="iPhone 17 Pro Max")
 	@xcrun simctl list devices available | grep -q "    $(SIMULATOR) (" || { $(FAIL) "No simulator named \"$(SIMULATOR)\"." "Pick one of: $$(xcrun simctl list devices available | sed -n 's/^    \(iPhone[^(]*\) (.*/\1/p' | sed 's/ *$$//' | sort -u | paste -sd ',' -). Example: make run ios SIMULATOR=\"iPhone 17\""; }
