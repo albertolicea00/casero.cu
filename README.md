@@ -85,6 +85,7 @@ project directly. For Xcode, run `make ios-project` and open
 Signed Android releases: `make android-release-apk` (APK) or `make android-release`
 (Google Play bundle), named `casero-v<version>-<versionCode>-release.apk`. They need
 `keys/release.properties`; see [ARCHITECTURE.md](ARCHITECTURE.md#builds-and-signing).
+`make ios-ipa` writes the iOS IPA with the same naming.
 
 > 🔐 Signing material (`*.jks`, `*.keystore`, `*.p12`, `*.mobileprovision`, `*.p8`) is never committed.
 

@@ -83,6 +83,7 @@ make check                # tests, Android lint and `git diff --check` (release 
 make build                # both debug builds
 make android-release-apk  # signed Android release APK (needs keys/release.properties)
 make android-release      # signed Android release bundle (.aab) for Google Play
+make ios-ipa              # iOS IPA: build/ipa/casero-v<version>-<build>-release.ipa
 ```
 
 Android outputs are named `casero-v<versionName>-<versionCode>-<debug|release>.apk`

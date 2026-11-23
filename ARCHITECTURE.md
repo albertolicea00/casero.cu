@@ -79,11 +79,24 @@ Everything else lives in `commonMain`.
 | Android debug APK | `make build` (or `./gradlew :androidApp:assembleDebug`) | `androidApp/build/outputs/apk/debug/casero-v<versionName>-<versionCode>-debug.apk` |
 | Android release APK | `make android-release-apk` | `androidApp/build/outputs/apk/release/casero-v<versionName>-<versionCode>-release.apk` |
 | Android release bundle | `make android-release` | `androidApp/build/outputs/bundle/release/casero-v<versionName>-<versionCode>-release.aab` |
-| iOS | `make run ios`, `make install ios` | see [Commands](AGENTS.md#commands) |
+| iOS IPA | `make ios-ipa` | `build/ipa/casero-v<MARKETING_VERSION>-<CURRENT_PROJECT_VERSION>-release.ipa` |
+| iOS on a simulator or your iPhone | `make run ios`, `make install ios` | see [Commands](AGENTS.md#commands) |
 
 The name comes from `base.archivesName` in `androidApp/build.gradle.kts`, built
 from `versionName` and `versionCode`; AGP appends the build type. Bump both there
-before a release.
+before a release, together with `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
+in `iosApp/project.yml` so both platforms carry the same version.
+
+Release APKs are shrunk with R8 (`isMinifyEnabled`, `isShrinkResources`; rules in
+`androidApp/proguard-rules.pro`). Ktor, kotlinx.serialization and Compose bring
+their own rules. After adding a library that uses reflection, test a release build
+on a device: sign-in, guest list and the PDF.
+
+`make ios-ipa` (`scripts/ios-ipa.sh`) archives in Release and exports with automatic
+signing for `DEVELOPMENT_TEAM` from `keys/ios.properties`. `IPA_METHOD` picks the
+export: `debugging` (default, and the only one a free personal team allows: own
+devices, expires after 7 days), `release-testing` (Ad Hoc) or `app-store-connect`
+(default with a paid team).
 
 Android release signing reads `keys/release.properties` (git-ignored; copy
 `keys/release.properties.example`):

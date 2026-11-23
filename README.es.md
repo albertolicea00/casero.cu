@@ -88,6 +88,7 @@ proyecto directamente. Para Xcode, ejecute `make ios-project` y abra
 Versiones firmadas de Android: `make android-release-apk` (APK) o `make android-release`
 (bundle para Google Play), con el nombre `casero-v<versión>-<versionCode>-release.apk`.
 Necesitan `keys/release.properties`; vea [ARCHITECTURE.md](ARCHITECTURE.md#builds-and-signing).
+`make ios-ipa` genera el IPA de iOS con el mismo formato de nombre.
 
 > 🔐 El material de firma (`*.jks`, `*.keystore`, `*.p12`, `*.mobileprovision`, `*.p8`) nunca se sube al repositorio.
 
