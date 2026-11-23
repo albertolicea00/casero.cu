@@ -1,9 +1,19 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+}
+
+// Release signing lives in keys/release.properties (git-ignored; copy keys/release.properties.example).
+// Read as UTF-8; storeFile is relative to keys/.
+val releaseSigning = rootProject.file("keys/release.properties").takeIf { it.exists() }?.let { file ->
+    Properties().apply { file.reader(Charsets.UTF_8).use { load(it) } }
+}
+if (releaseSigning == null && gradle.startParameter.taskNames.any { it.contains("Release") }) {
+    throw GradleException("Release signing needs keys/release.properties. Copy keys/release.properties.example and fill it in.")
 }
 
 android {
@@ -19,9 +29,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (releaseSigning != null) {
+            create("release") {
+                storeFile = rootProject.file("keys").resolve(releaseSigning.getProperty("storeFile"))
+                storePassword = releaseSigning.getProperty("storePassword")
+                keyAlias = releaseSigning.getProperty("keyAlias")
+                keyPassword = releaseSigning.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
