@@ -72,6 +72,49 @@ Everything else lives in `commonMain`.
   written by the native iOS app is ignored; the next reload rebuilds it. Saved
   credentials and settings carry over because the keys did not change.
 
+## Builds and signing
+
+| Build | Command | Output |
+|---|---|---|
+| Android debug APK | `make build` (or `./gradlew :androidApp:assembleDebug`) | `androidApp/build/outputs/apk/debug/casero-v<versionName>-<versionCode>-debug.apk` |
+| Android release APK | `make android-release-apk` | `androidApp/build/outputs/apk/release/casero-v<versionName>-<versionCode>-release.apk` |
+| Android release bundle | `make android-release` | `androidApp/build/outputs/bundle/release/casero-v<versionName>-<versionCode>-release.aab` |
+| iOS | `make run ios`, `make install ios` | see [Commands](AGENTS.md#commands) |
+
+The name comes from `base.archivesName` in `androidApp/build.gradle.kts`, built
+from `versionName` and `versionCode`; AGP appends the build type. Bump both there
+before a release.
+
+Android release signing reads `keys/release.properties` (git-ignored; copy
+`keys/release.properties.example`):
+
+```properties
+storeFile=release.jks
+storePassword=...
+keyAlias=key0
+keyPassword=...
+```
+
+- `storeFile` is relative to `keys/`.
+- The file is read as UTF-8 with Java `Properties`: a literal backslash in a
+  password is written `\\`. Other characters (`= : # ! $` and quotes) go as they
+  are, without quotes. Leading spaces of a value are dropped, trailing ones kept.
+- Keystores made by `keytool` since Java 9 are PKCS12, where the key password is
+  always the store password.
+- Without the file, any Gradle run that names a `Release` task stops with a
+  message; debug builds do not need it.
+- Create a keystore once, back it up (with its password) outside the repository
+  and never regenerate it: an app signed with another key cannot update the
+  installed one.
+
+  ```bash
+  keytool -genkeypair -v -keystore keys/release.jks -storetype PKCS12 \
+    -alias key0 -keyalg RSA -keysize 4096 -validity 36525
+  ```
+
+The first release build downloads the Android lint tools for
+`lintVitalAnalyzeRelease`; on a slow connection that takes a while.
+
 ## Release checklist
 
 Start from the [iOS release checklist](docs/reference/ios-architecture.md#release-checklist)

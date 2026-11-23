@@ -81,7 +81,14 @@ make test                 # shared tests on the JVM and the iOS simulator
 make test-device          # Android tests on a device or emulator (Keystore, PDF, certificate)
 make check                # tests, Android lint and `git diff --check` (release gate)
 make build                # both debug builds
+make android-release-apk  # signed Android release APK (needs keys/release.properties)
+make android-release      # signed Android release bundle (.aab) for Google Play
 ```
+
+Android outputs are named `casero-v<versionName>-<versionCode>-<debug|release>.apk`
+(and `.aab`), from `versionName`/`versionCode` in `androidApp/build.gradle.kts`.
+Release signing and the output paths are described in
+[ARCHITECTURE.md](ARCHITECTURE.md#builds-and-signing).
 
 `make run` and `make install` always need the platform (`ios` or `android`);
 without it they stop and say so.

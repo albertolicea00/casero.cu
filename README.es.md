@@ -85,6 +85,10 @@ Android Studio o IntelliJ IDEA con el plugin de Kotlin Multiplatform abren el
 proyecto directamente. Para Xcode, ejecute `make ios-project` y abra
 `iosApp/CaseroCu.xcodeproj`.
 
+Versiones firmadas de Android: `make android-release-apk` (APK) o `make android-release`
+(bundle para Google Play), con el nombre `casero-v<versión>-<versionCode>-release.apk`.
+Necesitan `keys/release.properties`; vea [ARCHITECTURE.md](ARCHITECTURE.md#builds-and-signing).
+
 > 🔐 El material de firma (`*.jks`, `*.keystore`, `*.p12`, `*.mobileprovision`, `*.p8`) nunca se sube al repositorio.
 
 ## 🔒 Nota sobre TLS

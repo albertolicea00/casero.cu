@@ -61,6 +61,11 @@ kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 }
 
+// Outputs read casero-v<versionName>-<versionCode>-<debug|release>.apk (and .aab); AGP appends the build type.
+base {
+    archivesName.set(android.defaultConfig.let { "casero-v${it.versionName}-${it.versionCode}" })
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation(libs.androidx.activity.compose)

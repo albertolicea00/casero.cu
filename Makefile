@@ -32,7 +32,7 @@ IOS_APP := $(IOS_BUILD)/Build/Products/Debug-iphonesimulator/CaseroCu.app
 
 .DEFAULT_GOAL := help
 .PHONY: help run install build test test-device check clean ios android \
-	android-build android-install android-run android-release emulator android-device devices \
+	android-build android-install android-run android-release android-release-apk emulator android-device devices \
 	android-device-install ios-project ios-build ios-run ios-device-install simulator
 
 help: ## List the available tasks
@@ -72,8 +72,11 @@ clean: ## Remove build outputs and the generated Xcode project
 android-build: ## Build the Android debug APK
 	$(GRADLE) :androidApp:assembleDebug
 
-android-release: ## Build the Android release bundle (needs your signing config)
+android-release: ## Build the signed Android release bundle (.aab; needs keys/release.properties)
 	$(GRADLE) :androidApp:bundleRelease
+
+android-release-apk: ## Build the signed Android release APK (needs keys/release.properties)
+	$(GRADLE) :androidApp:assembleRelease
 
 emulator: ## Open the Android emulator window (AVD=name) unless one is already running
 	@test -x $(ADB) || { $(FAIL) "adb not found at $(ADB)." "Install the Android SDK (Android Studio → SDK Manager) or set ANDROID_HOME."; }
