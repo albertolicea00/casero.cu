@@ -254,18 +254,19 @@ private fun MainScreen(app: AppState) {
                         Text(stringResource(Res.string.signing_out_of_the_app_session))
                     }
                 }
-                if (app.sessionExpiredBanner) {
-                    Banner(stringResource(Res.string.app_session_expired_tap_to_sign_in_again), Icons.Default.Warning, Orange.copy(alpha = 0.2f)) {
-                        isLoginPresented = true
-                    }
-                }
-                // SMS reports work without internet; the warning would only confuse there.
-                if (!isConnected && selection != Tab.Sms) {
-                    Banner(stringResource(Res.string.no_internet_connection_check_your_wi_fi_or), Icons.Default.WifiOff, Red.copy(alpha = 0.15f))
-                }
-                if (!app.isSignedIn && !app.sessionExpiredBanner && selection != Tab.Sms) {
-                    Banner(stringResource(Res.string.sign_in_to_the_app_session), Icons.Default.PersonAdd, Yellow.copy(alpha = 0.25f)) {
-                        isLoginPresented = true
+                // SMS reports need neither internet nor a portal session, so that tab shows no banner.
+                if (selection != Tab.Sms) {
+                    // Signing in needs the portal, so while offline only the red banner shows.
+                    if (!isConnected) {
+                        Banner(stringResource(Res.string.no_internet_connection_check_your_wi_fi_or), Icons.Default.WifiOff, Red.copy(alpha = 0.15f))
+                    } else if (app.sessionExpiredBanner) {
+                        Banner(stringResource(Res.string.app_session_expired_tap_to_sign_in_again), Icons.Default.Warning, Orange.copy(alpha = 0.2f)) {
+                            isLoginPresented = true
+                        }
+                    } else if (!app.isSignedIn) {
+                        Banner(stringResource(Res.string.sign_in_to_the_app_session), Icons.Default.PersonAdd, Yellow.copy(alpha = 0.25f)) {
+                            isLoginPresented = true
+                        }
                     }
                 }
             }
